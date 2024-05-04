@@ -35,4 +35,9 @@ class Activity extends Model
     {
         return $this->belongsTo(Brand::class);
     }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
 }

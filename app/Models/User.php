@@ -45,4 +45,9 @@ class User extends Authenticatable
     ];
 
     protected $guarded = ['user_types'];
+
+    public function activities()
+    {
+        return $this->hasMany(Activity::class);
+    }
 }

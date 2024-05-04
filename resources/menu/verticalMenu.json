@@ -1,23 +1,34 @@
 {
   "menu": [
     {
-      "name": "Dashboards",
+      "url": "/",
+      "name": "Dashboard",
       "icon": "menu-icon tf-icons ti ti-smart-home",
       "slug": "dashboard",
       "badge": [
-        "primary",
-        "5"
-      ],
+        "danger",
+        "4"
+      ]
+    },
+    {
+      "name": "Data Master",
+      "icon": "menu-icon tf-icons ti ti-file-text",
+      "slug": "data-master",
       "submenu": [
         {
-          "url": "/",
-          "name": "Analytics",
-          "slug": "dashboard-analytics"
+          "url": "data-master/brand",
+          "name": "Brand",
+          "slug": "data-master-brand"
         },
         {
-          "url": "dashboard/crm",
-          "name": "CRM",
-          "slug": "dashboard-crm"
+          "url": "data-master/product-type",
+          "name": "Tipe Produk",
+          "slug": "data-master-product-type"
+        },
+        {
+          "url": "data-master/task-type",
+          "name": "Tipe Task",
+          "slug": "data-master-task-type"
         }
       ]
     }
