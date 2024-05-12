@@ -1,25 +1,30 @@
 {
   "menu": [
     {
-      "name": "Dashboards",
+      "url": "/",
+      "name": "Dashboard",
       "icon": "menu-icon tf-icons ti ti-smart-home",
-      "slug": "dashboard",
-      "badge": [
-        "primary",
-        "5"
-      ],
-      "submenu": [
-        {
-          "url": "/",
-          "name": "Analytics",
-          "slug": "dashboard-analytics"
-        },
-        {
-          "url": "dashboard/crm",
-          "name": "CRM",
-          "slug": "dashboard-crm"
-        }
-      ]
+      "slug": "dashboard"
+    },
+    {
+      "menuHeader": "Manajemen"
+    },
+    {
+      "url": "/user",
+      "name": "Karyawan",
+      "icon": "menu-icon tf-icons ti ti-users",
+      "slug": "data-master",
+      "parent_menu": "Pengaturan Sistem"
+    },
+    {
+      "menuHeader": "Setup"
+    },
+    {
+      "url": "/pengaturan-sistem/data-master",
+      "name": "Data Master",
+      "icon": "menu-icon tf-icons ti ti-settings-cog",
+      "slug": "data-master",
+      "parent_menu": "Pengaturan Sistem"
     }
   ]
 }

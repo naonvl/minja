@@ -10,7 +10,9 @@
 
 .card {
   background-clip: padding-box;
-  box-shadow: $card-box-shadow;
+  box-shadow: none;
+  border: $border-width solid $card-border-color;
+  // box-shadow: $card-box-shadow;
 
   .card-link {
     display: inline-block;
