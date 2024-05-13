@@ -4,14 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class ActivityController extends Controller
+class DataMasterController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-      return view('content.activity.index');
+      return view('content.data-master.index');
     }
 
     /**

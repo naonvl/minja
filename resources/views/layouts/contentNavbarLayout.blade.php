@@ -62,16 +62,30 @@ $container = (isset($configData['contentLayout']) && $configData['contentLayout'
           @else
           <div class="{{$container}} flex-grow-1 container-p-y">
             @endif
-
+            <div class="row">
+              <div class="col-md-6 col-12">
+                  <div class="page-header-title">
+                      <h4 class="m-b-10 text-uppercase">
+                          @yield('title')
+                      </h4>
+                  </div>
+                  <ul class="breadcrumb d-none d-md-flex">
+                      @yield('breadcrumb')
+                  </ul>
+              </div>
+              <div class="col-md-6 col-12 mb-3 mb-md-0 d-flex justify-content-end align-items-center p-0">
+                  @yield('actions')
+              </div>
+          </div>
             @yield('content')
 
           </div>
           <!-- / Content -->
 
           <!-- Footer -->
-          @if ($isFooter)
+          {{-- @if ($isFooter)
           @include('layouts/sections/footer/footer')
-          @endif
+          @endif --}}
           <!-- / Footer -->
           <div class="content-backdrop fade"></div>
         </div>

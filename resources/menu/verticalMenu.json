@@ -10,17 +10,16 @@
       "menuHeader": "Manajemen"
     },
     {
-      "url": "/user",
-      "name": "Karyawan",
-      "icon": "menu-icon tf-icons ti ti-users",
-      "slug": "data-master",
-      "parent_menu": "Pengaturan Sistem"
+      "url": "/data-aktifitas",
+      "name": "Data Aktifitas",
+      "icon": "menu-icon tf-icons ti ti-file-text",
+    "slug": "data-aktifitas"
     },
     {
       "menuHeader": "Setup"
     },
     {
-      "url": "/pengaturan-sistem/data-master",
+      "url": "/data-master",
       "name": "Data Master",
       "icon": "menu-icon tf-icons ti ti-settings-cog",
       "slug": "data-master",
