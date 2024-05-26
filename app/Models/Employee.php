@@ -50,10 +50,20 @@ class Employee extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function departement()
+    public function department()
     {
-        return $this->belongsTo(DataMaster::class, 'departement_id');
+        return $this->belongsTo(DataMaster::class, 'department_id');
     }
+    /**
+ * Accessor for the status attribute.
+ *
+ * @param int $value The value of the status attribute
+ * @return string The formatted status
+ */
+public function getStatusAttribute($value)
+{
+    return $value ? 'Active' : 'Inactive';
+}
 
     /**
      * Accessor for the fullname attribute.

@@ -1,17 +1,24 @@
 export default [
   {
-    title: 'Dashboard',
+    title: 'Dasbor',
     to: { name: 'dashboard' },
     icon: { icon: 'tabler-smart-home' },
   },
-  // {
-  //   title: 'Home',
-  //   to: { name: 'index' },
-  //   icon: { icon: 'tabler-smart-home' },
-  // },
+  { heading: 'Manajemen' },
   {
-    title: 'Second page',
-    to: { name: 'second-page' },
-    icon: { icon: 'tabler-file' },
+    title: 'Karyawan',
+    to: { name: 'apps-user-list' },
+    icon: { icon: 'tabler-users-group' },
+  },
+  {
+    title: 'Aktifitas',
+    to: { name: 'apps-activities-list' },
+    icon: { icon: 'tabler-activity' },
+  },
+  { heading: 'Pengaturan' },
+  {
+    title: 'Master Data',
+    to: { name: 'data-master-list' },
+    icon: { icon: 'tabler-database' },
   },
 ]

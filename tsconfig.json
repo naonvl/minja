@@ -32,6 +32,9 @@
       "@core": [
         "./resources/ts/@core"
       ],
+      "@composables": [
+        "./resources/ts/composables"
+      ],
       "@images/*": [
         "./resources/images/*"
       ],

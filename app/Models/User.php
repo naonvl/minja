@@ -18,7 +18,7 @@ class User extends Authenticatable
      */
     protected $fillable = ['username', 'email', 'password', 'role_id', 'status'];
     protected $attributes = [
-        'user_type' => '',
+        'user_type' => 1,
     ];
     /**
      * Get the status of the user as a human-readable string.

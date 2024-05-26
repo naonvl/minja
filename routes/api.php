@@ -3,6 +3,10 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\DataMasterController;
+use App\Http\Controllers\EmployeeController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -23,3 +27,35 @@ Route::group(['prefix' => 'auth'], function () {
         Route::get('user', [AuthController::class, 'user']);
     });
 });
+
+Route::group(['middleware' => 'auth:sanctum'], function () {
+    // Users
+    Route::group(['prefix' => 'users'], function () {
+        Route::get('/', [UserController::class, 'index']);
+        Route::post('/', [UserController::class, 'store']);
+        Route::get('{id}', [UserController::class, 'show']);
+        Route::put('{id}', [UserController::class, 'update']);
+        Route::delete('{id}', [UserController::class, 'destroy']);
+    });
+
+    // Activities
+    Route::group(['prefix' => 'activities'], function () {
+        Route::get('/', [ActivityController::class, 'index']);
+        Route::post('/', [ActivityController::class, 'store']);
+        Route::get('{id}', [ActivityController::class, 'show']);
+        Route::put('{id}', [ActivityController::class, 'update']);
+        Route::delete('{id}', [ActivityController::class, 'destroy']);
+    });
+    Route::apiResource('data-masters', DataMasterController::class);
+    Route::apiResource('employees', EmployeeController::class);
+
+    // Data Masters
+});
+// Route::group(['prefix' => 'data-masters'], function () {
+//     Route::get('/', [DataMasterController::class, 'index']);
+//     Route::post('/', [DataMasterController::class, 'store']);
+//     Route::get('{id}', [DataMasterController::class, 'show']);
+//     Route::put('{id}', [DataMasterController::class, 'update']);
+//     Route::delete('{id}', [DataMasterController::class, 'destroy']);
+// });
+

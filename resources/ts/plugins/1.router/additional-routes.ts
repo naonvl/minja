@@ -24,6 +24,17 @@ export const redirects: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/login',
+    name: 'login',
+    redirect: to => {
+      // TODO: Get type from backend
+      const userData = useCookie<Record<string, unknown> | null | undefined>('userData')
+      if(userData)
+        return { name: 'dashboard' }
+      return { name: 'login', query: to.query }
+    },
+  },
+  {
     path: '/pages/user-profile',
     name: 'pages-user-profile',
     redirect: () => ({ name: 'pages-user-profile-tab', params: { tab: 'profile' } }),
@@ -69,9 +80,9 @@ export const routes: RouteRecordRaw[] = [
   //   name: 'dashboards-academy',
   //   component: () => import('@/pages/apps/academy/dashboard.vue'),
   // },
-  {
-    path: '/apps/ecommerce/dashboard',
-    name: 'apps-ecommerce-dashboard',
-    component: () => import('@/pages/dashboards/ecommerce.vue'),
-  },
+  // {
+  //   path: '/apps/ecommerce/dashboard',
+  //   name: 'apps-ecommerce-dashboard',
+  //   component: () => import('@/pages/dashboards/ecommerce.vue'),
+  // },
 ]

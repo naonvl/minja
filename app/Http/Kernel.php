@@ -54,7 +54,7 @@ class Kernel extends HttpKernel
    * @var array<string, class-string|string>
    */
   protected $middlewareAliases = [
-    'werp.api.key' => \App\Http\Middleware\ApiKeyMiddleware::class,
+    'ignore.api.requests' => \App\Http\Middleware\IgnoreApiRequest::class,
     'auth' => \App\Http\Middleware\Authenticate::class,
     'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
     'auth.session' => \Illuminate\Session\Middleware\AuthenticateSession::class,

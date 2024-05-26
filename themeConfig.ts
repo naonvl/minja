@@ -38,7 +38,7 @@ export const { themeConfig, layoutConfig } = defineThemeConfig({
   verticalNav: {
     isVerticalNavCollapsed: false,
     defaultNavItemIconProps: { icon: 'tabler-circle' },
-    isVerticalNavSemiDark: true,
+    isVerticalNavSemiDark: false,
   },
   horizontalNav: {
     type: 'sticky',
