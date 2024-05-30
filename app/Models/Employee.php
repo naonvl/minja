@@ -42,7 +42,25 @@ class Employee extends Model
      */
     public function salaries()
     {
-        return $this->hasMany(Salary::class);
+        return $this->hasMany(Salary::class, 'employee_id', 'id');
+    }
+    /**
+     * Get the salaries of the employee.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function activities()
+    {
+        return $this->hasMany(Activity::class, 'user_id', 'id');
+    }
+    /**
+     * Get the salaries of the employee.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function benefits()
+    {
+        return $this->hasMany(Benefit::class, 'employee_id', 'id');
     }
     
     /**
@@ -55,15 +73,15 @@ class Employee extends Model
         return $this->belongsTo(DataMaster::class, 'department_id');
     }
     /**
- * Accessor for the status attribute.
- *
- * @param int $value The value of the status attribute
- * @return string The formatted status
- */
-public function getStatusAttribute($value)
-{
-    return $value ? 'Active' : 'Inactive';
-}
+     * Accessor for the status attribute.
+     *
+     * @param int $value The value of the status attribute
+     * @return string The formatted status
+     */
+    public function getStatusAttribute($value)
+    {
+        return $value ? 'Active' : 'Inactive';
+    }
 
     /**
      * Accessor for the fullname attribute.
@@ -86,6 +104,10 @@ public function getStatusAttribute($value)
     public function scopeByDepartment($query, $departmentId)
     {
         return $query->where('department_id', $departmentId);
+    }
+    public function scopeActive($query)
+    {
+        return $query->where('status', 1);
     }
 
     /**

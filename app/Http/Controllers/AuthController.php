@@ -24,7 +24,7 @@ class AuthController extends Controller
             'remember_me' => 'boolean',
         ]);
 
-        $user = User::where('username', $request->input('username'))->first();
+        $user = User::where('username', $request->input('username'))->with('employee')->first();
 
         if (!$user) {
             return response()->json(
@@ -58,7 +58,13 @@ class AuthController extends Controller
 
         $tokenResult = $user->createToken('Personal Access Token');
         $token = $tokenResult->plainTextToken;
-        $userAbilityRules = [
+        $clientRules = [
+            [
+                'action' => 'read',
+                'subject' => 'AclDemo',
+            ],
+        ];
+        $adminRules = [
             [
                 'action' => 'manage',
                 'subject' => 'all',
@@ -69,7 +75,7 @@ class AuthController extends Controller
             'accessToken' => $token,
             'token_type' => 'Bearer',
             'userData' => $user,
-            'userAbilityRules' => $userAbilityRules,
+            'userAbilityRules' => $user->user_type == 'admin' ? $adminRules : $clientRules,
         ]);
     }
     public function logout(Request $request)

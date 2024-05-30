@@ -1,9 +1,15 @@
 <script setup lang="ts">
+definePage({
+  meta: {
+    action: "read",
+    subject: "AclDemo",
+  },
+});
 import { ref } from "vue";
 import { useApi } from "../../../composables/useApi";
 import { $api } from "../../../utils/api";
 const isDialogVisible = ref(false);
-const items = ["Departemen", "Aksi", "Produk"];
+const items = ["Departemen", "Tugas", "Produk", "Brand"];
 const currentTab = ref("window-1");
 const isMobile =
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -11,13 +17,13 @@ const isMobile =
   );
 const headers = [
   {
-    title: "Nama Aksi",
+    title: "Nama Tugas",
     key: "name",
     width: !isMobile ? "80%" : "55%",
     maxWidth: "100%",
   },
   {
-    title: "Aksi",
+    title: "Tugas",
     key: "actions",
     sortable: false,
   },
@@ -34,7 +40,20 @@ const headersDepartemen = [
     maxWidth: "100%",
   },
   {
-    title: "Aksi",
+    title: "Tugas",
+    key: "actions",
+    sortable: false,
+  },
+];
+const headersBrand = [
+  {
+    title: "Nama Brand",
+    key: "name",
+    width: !isMobile ? "80%" : "55%",
+    maxWidth: "100%",
+  },
+  {
+    title: "Tugas",
     key: "actions",
     sortable: false,
   },
@@ -47,12 +66,12 @@ const headersProduk = [
     maxWidth: "100%",
   },
   {
-    title: "Aksi",
+    title: "Tugas",
     key: "actions",
     sortable: false,
   },
 ];
-const masterAksiData = ref([
+const masterTugasData = ref([
   { id: 1, name: "Buang Benang" },
   { id: 2, name: "Kecos" },
 ]);
@@ -62,6 +81,7 @@ const masterDepartementData = ref([
   { id: 3, name: "Potong" },
 ]);
 const masterProdukData: any = ref([]);
+const masterBrandData: any = ref([]);
 
 const handleSubmit = async () => {
   try {
@@ -76,8 +96,8 @@ const handleSubmit = async () => {
     if (response.data) {
       switch (currentTab.value) {
         case "window-1":
-          masterAksiData.value = [
-            ...masterAksiData.value,
+          masterTugasData.value = [
+            ...masterTugasData.value,
             {
               id: response.data.id,
               name: response.data.name,
@@ -93,11 +113,20 @@ const handleSubmit = async () => {
             },
           ];
           break;
-        default:
+        case "window-3":
           masterProdukData.value = [
             ...masterProdukData.value,
             {
               id: masterProdukData.value.length + 1,
+              name: form.value.name,
+            },
+          ];
+          break;
+        default:
+          masterBrandData.value = [
+            ...masterBrandData.value,
+            {
+              id: masterBrandData.value.length + 1,
               name: form.value.name,
             },
           ];
@@ -115,21 +144,24 @@ const handleSubmit = async () => {
 };
 const fetchData = async () => {
   try {
-    const response = await useApi("/data-masters", {
+    const response = await useApi("/data-masters?all=1", {
       method: "GET",
     });
     if (response.data.value) {
       const data: any = await response.data.value;
       const dataMasters = data.data;
 
-      masterAksiData.value = dataMasters.filter(
-        (item: any) => item.tipe_master_data === "Aksi"
+      masterTugasData.value = dataMasters.filter(
+        (item: any) => item.tipe_master_data === "Tugas"
       );
       masterDepartementData.value = dataMasters.filter(
         (item: any) => item.tipe_master_data === "Departemen"
       );
       masterProdukData.value = dataMasters.filter(
         (item: any) => item.tipe_master_data === "Produk"
+      );
+      masterBrandData.value = dataMasters.filter(
+        (item: any) => item.tipe_master_data === "Brand"
       );
     } else {
       console.error(response.error);
@@ -206,12 +238,13 @@ fetchData();
         <VCol sm="3" cols="12">
           <VTabs v-model="currentTab" direction="vertical" class="v-tabs-pill">
             <VTab>
-              <div class="d-flex justify-content-between">Aksi</div>
+              <div class="d-flex justify-content-between">Tugas</div>
             </VTab>
 
             <VTab> Departemen </VTab>
 
             <VTab> Produk </VTab>
+            <VTab> Brand </VTab>
           </VTabs>
         </VCol>
 
@@ -223,7 +256,7 @@ fetchData();
                   <VDataTableServer
                     :itemsLength="5"
                     :headers="headers"
-                    :items="masterAksiData"
+                    :items="masterTugasData"
                     :items-per-page="5"
                   >
                     <template #item.actions="{ item }">
@@ -260,6 +293,24 @@ fetchData();
                     :itemsLength="5"
                     :headers="headersProduk"
                     :items="masterProdukData"
+                    :items-per-page="5"
+                  >
+                    <template #item.actions="{ item }">
+                      <IconBtn>
+                        <VIcon icon="tabler-edit" />
+                      </IconBtn>
+                      <IconBtn>
+                        <VIcon icon="tabler-trash" />
+                      </IconBtn>
+                    </template>
+                  </VDataTableServer>
+                </VWindowItem>
+
+                <VWindowItem value="window-3">
+                  <VDataTableServer
+                    :itemsLength="5"
+                    :headers="headersBrand"
+                    :items="masterBrandData"
                     :items-per-page="5"
                   >
                     <template #item.actions="{ item }">

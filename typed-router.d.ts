@@ -42,14 +42,16 @@ declare module 'vue-router/auto/routes' {
     'root': RouteRecordInfo<'root', '/', Record<never, never>, Record<never, never>>,
     '$error': RouteRecordInfo<'$error', '/:error(.*)', { error: ParamValue<true> }, { error: ParamValue<false> }>,
     'access-control': RouteRecordInfo<'access-control', '/access-control', Record<never, never>, Record<never, never>>,
+    'apps-activities-create': RouteRecordInfo<'apps-activities-create', '/apps/activities/create', Record<never, never>, Record<never, never>>,
     'apps-activities-list': RouteRecordInfo<'apps-activities-list', '/apps/activities/list', Record<never, never>, Record<never, never>>,
     'apps-activities-view-id': RouteRecordInfo<'apps-activities-view-id', '/apps/activities/view/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
+    'apps-payslip-list': RouteRecordInfo<'apps-payslip-list', '/apps/payslip/list', Record<never, never>, Record<never, never>>,
     'apps-user-list': RouteRecordInfo<'apps-user-list', '/apps/user/list', Record<never, never>, Record<never, never>>,
     'apps-user-view-id': RouteRecordInfo<'apps-user-view-id', '/apps/user/view/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
     'dashboard': RouteRecordInfo<'dashboard', '/dashboard', Record<never, never>, Record<never, never>>,
-    'dashboards-crm': RouteRecordInfo<'dashboards-crm', '/dashboards/crm', Record<never, never>, Record<never, never>>,
     'data-master-list': RouteRecordInfo<'data-master-list', '/data-master/list', Record<never, never>, Record<never, never>>,
     'login': RouteRecordInfo<'login', '/login', Record<never, never>, Record<never, never>>,
+    'profile': RouteRecordInfo<'profile', '/profile', Record<never, never>, Record<never, never>>,
     'second-page': RouteRecordInfo<'second-page', '/second-page', Record<never, never>, Record<never, never>>,
   }
 }

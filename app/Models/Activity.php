@@ -24,16 +24,6 @@ class Activity extends Model
     use HasFactory;
 
     /**
-     * Get the data master associated with the activity.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function dataMaster()
-    {
-        return $this->belongsTo(DataMaster::class);
-    }
-
-    /**
      * Get the task type associated with the activity.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -50,7 +40,16 @@ class Activity extends Model
      */
     public function product()
     {
-        return $this->belongsTo(Product::class, 'product_id');
+        return $this->belongsTo(DataMaster::class, 'product_id');
+    }
+    /**
+     * Get the product associated with the activity.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function brand()
+    {
+        return $this->belongsTo(DataMaster::class, 'brand_id');
     }
 
     /**
@@ -64,13 +63,13 @@ class Activity extends Model
     }
 
     /**
-     * Get the user associated with the activity.
+     * Get the employee associated with the activity.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function user()
+    public function employee()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(Employee::class, 'user_id');
     }
 
     /**
@@ -78,7 +77,7 @@ class Activity extends Model
      *
      * @var array
      */
-    protected $fillable = ['task_type_id', 'product_id', 'assigner_id', 'user_id', 'qty', 'status'];
+    protected $fillable = ['task_type_id', 'product_id', 'assigner_id','brand_id', 'user_id', 'qty', 'status'];
     /**
      * Get the status of the activity as a human-readable string.
      *
@@ -93,6 +92,7 @@ class Activity extends Model
             2 => 'In Progress',
             3 => 'Partially Done',
             4 => 'Complete',
+            5 => 'Paid',
         ];
 
         return $statuses[$value] ?? 'Unknown';

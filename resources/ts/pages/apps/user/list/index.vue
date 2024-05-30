@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
-
+const userData = useCookie("userData").value;
+const user = JSON.parse(JSON.stringify(userData));
 const isDialogVisible = ref(false);
 const itemsPerPage = ref(10);
 const page = ref(1);
@@ -27,7 +28,7 @@ const limits = [
 const totalUsers = ref(5);
 const headers = [
   { title: "#", key: "number", width: "5%" },
-  { title: "Nama", key: "fullname" },
+  { title: "Nama", key: "id" },
   { title: "Departemen", key: "department" },
   { title: "Status", key: "status" },
   { title: "Aksi", key: "actions", sortable: false, width: "10%" },
@@ -119,47 +120,6 @@ fetchEmployees();
       <VCardTitle>Daftar Karyawan</VCardTitle>
     </VCardItem>
 
-    <!-- <VCardText>
-        <VRow>
-          <VCol
-            cols="12"
-            sm="4"
-          >
-            <AppSelect
-              v-department="sjahit"
-              placeholder="departmentt division"
-  jahit="divisions"
-  jahit
-              clear-icon="tabler-x"
-            />
-          </VCol>
-          <VCol
-            cols="12"
-            sm="4"
-          >
-            <AppSelect
-              v-model="selectedPlan"
-              placeholder="Select Plan"
-              :items="plans"
-              clearable
-              clear-icon="tabler-x"
-            />
-          </VCol>
-          <VCol
-            cols="12"
-            sm="4"
-          >
-            <AppSelect
-              v-model="selectedStatus"
-              placeholder="Select Status"
-              :items="status"
-              clearable
-              clear-icon="tabler-x"
-            />
-          </VCol>
-        </VRow>
-      </VCardText> -->
-
     <VDivider />
 
     <VCardText class="d-flex flex-wrap gap-4">
@@ -185,7 +145,12 @@ fetchEmployees();
         </VBtn> -->
 
         <!-- 👉 Add user button -->
-        <VDialog v-model="isDialogVisible" persistent width="600">
+        <VDialog
+          v-if="user.user_type == 'admin'"
+          v-model="isDialogVisible"
+          persistent
+          width="600"
+        >
           <!-- Activator -->
           <template #activator="{ props }">
             <VBtn @click="openModal" v-bind="props" prepend-icon="tabler-plus">
@@ -288,20 +253,24 @@ fetchEmployees();
         {{ index + 1 }}
       </template>
       <!-- User -->
-      <template #item.user="{ item }: any">
+      <template #item.id="{ item }: any">
         <div class="d-flex align-center gap-x-4">
           <div class="d-flex flex-column">
             <h6 class="text-base">
               <RouterLink
+                v-if="user.user_type == 'admin'"
                 :to="{ name: 'apps-user-view-id', params: { id: item.id } }"
                 class="font-weight-medium text-link"
               >
                 {{ item.fullname }}
               </RouterLink>
+              <p
+                v-if="user.user_type != 'admin'"
+                class="font-weight-medium text-link"
+              >
+                {{ item.fullname }}
+              </p>
             </h6>
-            <!-- <div class="text-sm">
-              {{ item.email }}
-            </div> -->
           </div>
         </div>
       </template>
@@ -326,7 +295,7 @@ fetchEmployees();
         <IconBtn @click="deleteUser(item.id)">
           <VIcon icon="tabler-edit" />
         </IconBtn>
-        <IconBtn @click="deleteUser(item.id)">
+        <IconBtn v-if="user.user_type == 'admin'" @click="deleteUser(item.id)">
           <VIcon icon="tabler-trash" />
         </IconBtn>
       </template>

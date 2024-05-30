@@ -7,6 +7,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\DataMasterController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\SalaryController;
+use App\Http\Controllers\BenefitController;
+use App\Http\Controllers\PayslipController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -48,6 +51,15 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     });
     Route::apiResource('data-masters', DataMasterController::class);
     Route::apiResource('employees', EmployeeController::class);
+    Route::post('/employees/fire', [EmployeeController::class, 'fireEmployee']);
+    // Route::get('/employees/{id}', [EmployeeController::class, 'getEmployeeByUser']);
+    Route::post('/generate-payslip', [PayslipController::class, 'generate']);
+    Route::post('/payall-payslip', [PayslipController::class, 'payAll']);
+    Route::post('/unpaidall-payslip', [PayslipController::class, 'unpaidAll']);
+    Route::get('/payslips/user/{employee_id}', [PayslipController::class, 'getTotalPayslips']);
+    Route::apiResource('salaries', SalaryController::class);
+    Route::apiResource('benefits', BenefitController::class);
+    Route::apiResource('payslips', PayslipController::class);
 
     // Data Masters
 });

@@ -1,66 +1,77 @@
 <script setup lang="ts">
-import { useGenerateImageVariant } from '@core/composable/useGenerateImageVariant'
-import authV2LoginIllustrationBorderedDark from '@images/pages/auth-v2-login-illustration-bordered-dark.png'
-import authV2LoginIllustrationBorderedLight from '@images/pages/auth-v2-login-illustration-bordered-light.png'
-import authV2LoginIllustrationDark from '@images/pages/auth-v2-login-illustration-dark.png'
-import authV2LoginIllustrationLight from '@images/pages/auth-v2-login-illustration-light.png'
-import authV2MaskDark from '@images/pages/misc-mask-dark.png'
-import authV2MaskLight from '@images/pages/misc-mask-light.png'
-import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
-import { themeConfig } from '@themeConfig'
-import { VForm } from 'vuetify/components/VForm'
+import { useGenerateImageVariant } from "@core/composable/useGenerateImageVariant";
+import authV2LoginIllustrationBorderedDark from "@images/pages/auth-v2-login-illustration-bordered-dark.png";
+import authV2LoginIllustrationBorderedLight from "@images/pages/auth-v2-login-illustration-bordered-light.png";
+import authV2LoginIllustrationDark from "@images/pages/auth-v2-login-illustration-dark.png";
+import authV2LoginIllustrationLight from "@images/pages/auth-v2-login-illustration-light.png";
+import authV2MaskDark from "@images/pages/misc-mask-dark.png";
+import authV2MaskLight from "@images/pages/misc-mask-light.png";
+import { VNodeRenderer } from "@layouts/components/VNodeRenderer";
+import { themeConfig } from "@themeConfig";
+import { VForm } from "vuetify/components/VForm";
 
 const router = useRouter();
-const ability = useAbility()
-const route = useRoute()
+const ability = useAbility();
+const route = useRoute();
 
-definePage({ meta: { layout: 'blank', 
-    unauthenticatedOnly: true, } })
+definePage({ meta: { layout: "blank", unauthenticatedOnly: true } });
 
 const form = ref({
-  username: '',
-  password: '',
+  username: "",
+  password: "",
   remember: false,
-})
+});
 
-const errorMessage = ref('')
+const errorMessage = ref("");
 
+const isDialogVisible = ref(false);
+watch(isDialogVisible, (value) => {
+  if (!value) return;
+
+  setTimeout(() => {
+    isDialogVisible.value = false;
+  }, 4000);
+});
 const login = async () => {
-  const res = await $api('/auth/login', {
-    method: 'POST',
+  isDialogVisible.value = true;
+  const res = await $api("/auth/login", {
+    method: "POST",
     body: {
       username: form.value.username,
       password: form.value.password,
     },
-    onResponseError({ response }:any) {
-      errorMessage.value = response._data.message
+    onResponseError({ response }: any) {
+      isDialogVisible.value = false;
+      errorMessage.value = response._data.message;
       // errors.value = response._data.errors
     },
-  })
+  });
 
-  const { accessToken, userData, userAbilityRules } = res
+  const { accessToken, userData, userAbilityRules } = res;
+  console.log(userData);
 
-  useCookie('userAbilityRules').value = userAbilityRules
-  ability.update(userAbilityRules)
-  useCookie('userData').value = userData
-  useCookie('accessToken').value = accessToken
+  useCookie("userAbilityRules").value = userAbilityRules;
+  ability.update(userAbilityRules);
+  useCookie("userData").value = userData;
+  useCookie("accessToken").value = accessToken;
 
   // Redirect to `to` query if exist or redirect to index route
   // ❗ nextTick is required to wait for DOM updates and later redirect
   await nextTick(() => {
-      router.replace(route.query.to ? String(route.query.to) : '/dashboard')
-    })
-}
-const isPasswordVisible = ref(false)
+    router.replace(route.query.to ? String(route.query.to) : "/");
+  });
+};
+const isPasswordVisible = ref(false);
 
 const authThemeImg = useGenerateImageVariant(
   authV2LoginIllustrationLight,
   authV2LoginIllustrationDark,
   authV2LoginIllustrationBorderedLight,
   authV2LoginIllustrationBorderedDark,
-  true)
+  true
+);
 
-const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
+const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark);
 </script>
 
 <template>
@@ -73,18 +84,25 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
     </div>
   </RouterLink>
 
-  <VRow
-    no-gutters
-    class="auth-wrapper bg-surface"
-  >
-    <VCol
-      md="8"
-      class="d-none d-md-flex"
-    >
+  <VRow no-gutters class="auth-wrapper bg-surface">
+    <VDialog v-model="isDialogVisible" width="300">
+      <VCard color="primary" width="300">
+        <VCardText class="pt-3">
+          Please stand by
+          <VProgressLinear
+            indeterminate
+            bg-color="rgba(var(--v-theme-surface), 0.1)"
+            :height="8"
+            class="mb-0 mt-4"
+          />
+        </VCardText>
+      </VCard>
+    </VDialog>
+    <VCol md="8" class="d-none d-md-flex">
       <div class="position-relative bg-background w-100 me-0">
         <div
           class="d-flex align-center justify-center w-100 h-100"
-          style="padding-inline: 6.25rem;"
+          style="padding-inline: 6.25rem"
         >
           <VImg
             max-width="613"
@@ -99,7 +117,7 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
           alt="auth-footer-mask"
           height="280"
           width="100"
-        >
+        />
       </div>
     </VCol>
 
@@ -108,14 +126,12 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
       md="4"
       class="auth-card-v2 d-flex align-center justify-center"
     >
-      <VCard
-        flat
-        :max-width="500"
-        class="mt-12 mt-sm-0 pa-4"
-      >
+      <VCard flat :max-width="500" class="mt-12 mt-sm-0 pa-4">
         <VCardText>
           <h4 class="text-h4 mb-1">
-            Welcome to <span class="text-capitalize"> {{ themeConfig.app.title }} </span>! 👋🏻
+            Welcome to
+            <span class="text-capitalize"> {{ themeConfig.app.title }} </span>!
+            👋🏻
           </h4>
           <!-- <p class="mb-0">
             Please sign-in to your account and start the adventure
@@ -135,7 +151,7 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
           </VAlert>
         </VCardText> -->
         <VCardText>
-          <VForm  @submit.prevent="login">
+          <VForm @submit.prevent="login">
             <VRow>
               <!-- username -->
               <VCol cols="12">
@@ -155,39 +171,31 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
                   label="Password"
                   placeholder="············"
                   :type="isPasswordVisible ? 'text' : 'password'"
-                  :append-inner-icon="isPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
+                  :append-inner-icon="
+                    isPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'
+                  "
                   @click:append-inner="isPasswordVisible = !isPasswordVisible"
                 />
 
-                <div class="d-flex align-center flex-wrap justify-space-between mt-2 mb-4">
-                  <VCheckbox
-                    v-model="form.remember"
-                    label="Remember me"
-                  />
-                  <a
-                    class="text-primary ms-2 mb-1"
-                    href="#"
-                  >
+                <div
+                  class="d-flex align-center flex-wrap justify-space-between mt-2 mb-4"
+                >
+                  <VCheckbox v-model="form.remember" label="Remember me" />
+                  <a class="text-primary ms-2 mb-1" href="#">
                     Forgot Password?
                   </a>
                 </div>
 
-                <VBtn
-                  block
-                  type="submit"
+                <VBtn block type="submit"> Login </VBtn>
+                <!-- Error message -->
+                <VAlert
+                  v-if="errorMessage"
+                  type="error"
+                  variant="outlined"
+                  class="my-4"
                 >
-                  Login
-                </VBtn>
-                    <!-- Error message -->
-    <VAlert
-      v-if="errorMessage"
-      type="error"
-      variant="outlined"
-      class="my-4"
-    >
-      {{ errorMessage }}
-    </VAlert>
-
+                  {{ errorMessage }}
+                </VAlert>
               </VCol>
 
               <!-- create account -->

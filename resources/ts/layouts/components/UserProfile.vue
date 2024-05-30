@@ -1,33 +1,34 @@
 <script setup lang="ts">
-import avatar1 from '@images/avatars/avatar-1.png';
+import avatar1 from "@images/avatars/avatar-1.png";
 
-const router = useRouter()
-const ability = useAbility()
+const router = useRouter();
+const ability = useAbility();
 
 // TODO: Get type from backend
-const userData = useCookie<any>('userData')
+const userData = useCookie<any>("userData");
+console.log(userData.value);
+
 const logout = async () => {
-  const res = await $api('/auth/logout', {
-    method: 'GET'
-  })
+  const res = await $api("/auth/logout", {
+    method: "GET",
+  });
 
-  
   // Update the ability using `update` method
-  useCookie('accessToken').value = null
+  useCookie("accessToken").value = null;
 
-// Remove "userData" from cookie
-userData.value = null
+  // Remove "userData" from cookie
+  userData.value = null;
 
-// Redirect to login page
-await router.push('/login')
+  // Redirect to login page
+  await router.push("/login");
 
-// ℹ️ We had to remove abilities in then block because if we don't nav menu items mutation is visible while redirecting user to login page
-// Remove "userAbilities" from cookie
-useCookie('userAbilityRules').value = null
+  // ℹ️ We had to remove abilities in then block because if we don't nav menu items mutation is visible while redirecting user to login page
+  // Remove "userAbilities" from cookie
+  useCookie("userAbilityRules").value = null;
 
-// Reset ability to initial ability
-ability.update([])
-}
+  // Reset ability to initial ability
+  ability.update([]);
+};
 </script>
 
 <template>
@@ -39,20 +40,11 @@ ability.update([])
     bordered
     color="success"
   >
-    <VAvatar
-      class="cursor-pointer"
-      color="primary"
-      variant="tonal"
-    >
+    <VAvatar class="cursor-pointer" color="primary" variant="tonal">
       <VImg :src="avatar1" />
 
       <!-- SECTION Menu -->
-      <VMenu
-        activator="parent"
-        width="230"
-        location="bottom end"
-        offset="14px"
-      >
+      <VMenu activator="parent" width="230" location="bottom end" offset="14px">
         <VList>
           <!-- 👉 User Avatar & Name -->
           <VListItem>
@@ -65,10 +57,7 @@ ability.update([])
                   offset-y="3"
                   color="success"
                 >
-                  <VAvatar
-                    color="primary"
-                    variant="tonal"
-                  >
+                  <VAvatar color="primary" variant="tonal">
                     <VImg :src="avatar1" />
                   </VAvatar>
                 </VBadge>
@@ -76,9 +65,9 @@ ability.update([])
             </template>
 
             <VListItemTitle class="font-weight-semibold">
-              John Doe
+              {{ userData.fullname }}
             </VListItemTitle>
-            <VListItemSubtitle>Admin</VListItemSubtitle>
+            <VListItemSubtitle>{{ userData.user_type }}</VListItemSubtitle>
           </VListItem>
 
           <VDivider class="my-2" />
@@ -86,24 +75,25 @@ ability.update([])
           <!-- 👉 Profile -->
           <VListItem link>
             <template #prepend>
-              <VIcon
-                class="me-2"
-                icon="tabler-user"
-                size="22"
-              />
+              <VIcon class="me-2" icon="tabler-user" size="22" />
             </template>
 
-            <VListItemTitle>Profile</VListItemTitle>
+            <VListItemTitle>
+              <RouterLink
+                :to="{
+                  name: 'profile',
+                }"
+                class="font-weight-medium text-link"
+              >
+                Profile
+              </RouterLink>
+            </VListItemTitle>
           </VListItem>
 
           <!-- 👉 Settings -->
           <VListItem link>
             <template #prepend>
-              <VIcon
-                class="me-2"
-                icon="tabler-settings"
-                size="22"
-              />
+              <VIcon class="me-2" icon="tabler-settings" size="22" />
             </template>
 
             <VListItemTitle>Settings</VListItemTitle>
@@ -112,11 +102,7 @@ ability.update([])
           <!-- 👉 Pricing -->
           <VListItem link>
             <template #prepend>
-              <VIcon
-                class="me-2"
-                icon="tabler-currency-dollar"
-                size="22"
-              />
+              <VIcon class="me-2" icon="tabler-currency-dollar" size="22" />
             </template>
 
             <VListItemTitle>Pricing</VListItemTitle>
@@ -125,11 +111,7 @@ ability.update([])
           <!-- 👉 FAQ -->
           <VListItem link>
             <template #prepend>
-              <VIcon
-                class="me-2"
-                icon="tabler-help"
-                size="22"
-              />
+              <VIcon class="me-2" icon="tabler-help" size="22" />
             </template>
 
             <VListItemTitle>FAQ</VListItemTitle>
@@ -140,16 +122,16 @@ ability.update([])
 
           <!-- 👉 Logout -->
           <div class="px-4 py-2">
-              <VBtn
-                block
-                size="small"
-                color="error"
-                append-icon="tabler-logout"
-                @click="logout"
-              >
-                Logout
-              </VBtn>
-            </div>
+            <VBtn
+              block
+              size="small"
+              color="error"
+              append-icon="tabler-logout"
+              @click="logout"
+            >
+              Logout
+            </VBtn>
+          </div>
         </VList>
       </VMenu>
       <!-- !SECTION -->

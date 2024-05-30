@@ -14,21 +14,26 @@ class DataMasterController extends Controller
         try {
             $dataMasters = DataMaster::query();
 
-            if ($request->has('name')) {
-                $dataMasters->where('name', 'like', '%' . $request->input('name') . '%');
+            if ($request->has('all')) {
+                $data = $dataMasters->get();
+                $count = $data->count();
+            } else {
+                if ($request->has('name')) {
+                    $dataMasters->where('name', 'like', '%' . $request->input('name') . '%');
+                }
+
+                if ($request->has('tipeData')) {
+                    $dataMasters->where('tipe_master_data', $request->input('tipeData'));
+                }
+
+                $perPage = 10; // adjust this value to change the number of items per page
+                $page = $request->input('page', 1);
+
+                $dataMasters = $dataMasters->paginate($perPage);
+
+                $count = $dataMasters->total();
+                $data = $dataMasters->items();
             }
-
-            if ($request->has('tipeData')) {
-                $dataMasters->where('tipe_master_data', $request->input('tipeData'));
-            }
-
-            $perPage = 10; // adjust this value to change the number of items per page
-            $page = $request->input('page', 1);
-
-            $dataMasters = $dataMasters->paginate($perPage);
-
-            $count = $dataMasters->total();
-            $data = $dataMasters->items();
 
             if (!$data) {
                 return response()->json(['error' => 'No data masters found'], 404);
@@ -37,9 +42,8 @@ class DataMasterController extends Controller
             return response()->json([
                 'data' => $data,
                 'count' => $count,
-                'perPage' => $perPage,
-                'currentPage' => $page,
-                'lastPage' => $dataMasters->lastPage(),
+                'perPage' => $perPage ?? null,
+                'currentPage' => $page ?? null,
             ], 200);
         } catch (Exception $e) {
             return response()->json(['error' => 'Internal Server Error'], 500);

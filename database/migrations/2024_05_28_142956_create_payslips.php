@@ -6,20 +6,26 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::create('activities', function (Blueprint $table) {
+        Schema::create('payslips', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            // $table->foreignId('assigner_id')->constrained('users');
-            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('employee_id')->constrained('employees');
+            $table->date('payslip_date');
             $table->integer('status')->default(0);
-            $table->integer('qty')->index();
+            $table->bigInteger('total')->default(0);
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::dropIfExists('activities');
+        Schema::dropIfExists('payslips');
     }
 };

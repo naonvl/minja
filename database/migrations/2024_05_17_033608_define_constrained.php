@@ -20,6 +20,11 @@ return new class extends Migration {
             $table->foreignId('product_id')->constrained('products');
             $table->foreignId('employee_id')->constrained('employees');
         });
+        Schema::table('activities', function (Blueprint $table) {
+            $table->foreignId('product_id')->constrained('data_masters');
+            $table->foreignId('task_type_id')->constrained('data_masters');
+            $table->foreignId('brand_id')->constrained('data_masters');
+        });
     }
 
     /**

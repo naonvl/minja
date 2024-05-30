@@ -1,6 +1,14 @@
 <script setup lang="ts">
-const route = useRoute("apps-user-view-id");
-
+definePage({
+  meta: {
+    action: "read",
+    subject: "AclDemo",
+  },
+});
+const userData = useCookie<any>("userData");
+const itemsPerPage = ref(10);
+const page = ref(1);
+const sortBy = ref();
 const isGajiDialogVisible = ref(false);
 const isBenefitDialogVisible = ref(false);
 const userTab = ref(null);
@@ -21,6 +29,12 @@ const formBenefit = ref({
 const isNewPasswordVisible = ref(false);
 const isConfirmPasswordVisible = ref(false);
 const employeeData = ref<any>({});
+const headersSlipGaji = [
+  { title: "#", key: "number", width: "5%" },
+  { title: "Detail", key: "payslipitems" },
+  { title: "Total", key: "total" },
+  { title: "Status", key: "status" },
+];
 const headersGaji = [
   {
     title: "Nama Gaji",
@@ -29,26 +43,6 @@ const headersGaji = [
   {
     title: "Nominal (Per Pcs)",
     key: "amount",
-  },
-  {
-    title: "Aksi",
-    key: "actions",
-    sortable: false,
-  },
-];
-const headersSlipGaji = [
-  {
-    title: "Aktifitas",
-    key: "name",
-  },
-  {
-    title: "Nominal (Per Pcs)",
-    key: "amount",
-  },
-  {
-    title: "Aksi",
-    key: "actions",
-    sortable: false,
   },
 ];
 const headersBenefit = [
@@ -59,11 +53,6 @@ const headersBenefit = [
   {
     title: "Nominal (Per Minggu)",
     key: "amount",
-  },
-  {
-    title: "Aksi",
-    key: "actions",
-    sortable: false,
   },
 ];
 const masterGajiData = ref<any>([
@@ -83,10 +72,32 @@ const masterBenefitData = ref<any>([
   },
 ]);
 const masterTugasData = ref([]);
-const masterProdukData = ref([]);
+const masterPaySlipData = ref([]);
 const masterSlipGajiData = ref([]);
+const fetchPayslips = async () => {
+  try {
+    const response = await useApi(
+      "/payslips?employee_id=" + userData.value?.employee.id,
+      {
+        method: "GET",
+      }
+    );
+    if (response.data.value) {
+      const data: any = await response.data.value;
+      console.log(data);
+      masterPaySlipData.value = data.data;
+    } else {
+      // console.error(response.data.error);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+fetchPayslips();
 const fetchEmployee = async () => {
-  const response = await useApi<any>("/employees/" + route.params.id);
+  const response = await useApi<any>(
+    "/employees/" + userData.value?.employee.id
+  );
   const values = await response.data.value;
   employeeData.value = values.data;
   console.log(values);
@@ -108,114 +119,27 @@ const resolveUserRoleVariant = (role: string) => {
   }
 };
 const resolveUserStatusVariant = (role: string) => {
-  switch (role) {
+  const statLowerCase = role.toLowerCase();
+  switch (statLowerCase) {
     case "inactive":
       return { color: "warning", icon: "tabler-user" };
-    case "Active":
+    case "pending":
+      return { color: "warning", icon: "tabler-user" };
+    case "active":
+      return { color: "success", icon: "tabler-circle-check" };
+    case "paid":
       return { color: "success", icon: "tabler-circle-check" };
     default:
       return { color: "primary", icon: "tabler-user" };
   }
 };
-const simpanGaji = async () => {
-  try {
-    const response = await $api("/salaries", {
-      method: "POST",
-      body: {
-        employee_id: employeeData.value.id,
-        task_type_id: formGaji.value.task_type_id,
-        product_id: formGaji.value.product_id,
-        amount: Number(formGaji.value.amount),
-      },
-    });
+const resolveStatusVariant = (stat: string) => {
+  const statLowerCase = stat.toLowerCase();
+  if (statLowerCase === "pending") return "warning";
+  if (statLowerCase === "active") return "success";
+  if (statLowerCase === "inactive") return "secondary";
 
-    if (response.data) {
-      masterGajiData.value = [
-        ...masterGajiData.value,
-        {
-          id: masterGajiData.value.length + 1,
-          name: response.data.value.name,
-          nominal: response.data.value.amount,
-        },
-      ];
-      isGajiDialogVisible.value = false;
-    } else {
-      console.error(response.error);
-    }
-  } catch (error) {
-    console.error(error);
-  } finally {
-  }
-};
-const simpanBenefit = async () => {
-  try {
-    const response = await $api("/benefits", {
-      method: "POST",
-      body: {
-        employee_id: employeeData.value.id,
-        name: formBenefit.value.name,
-        amount: Number(formBenefit.value.amount),
-      },
-    });
-
-    if (response.data) {
-      masterBenefitData.value = [
-        ...masterBenefitData.value,
-        {
-          id: masterBenefitData.value.length + 1,
-          name: formBenefit.value.name,
-          nominal: formBenefit.value.amount,
-        },
-      ];
-      isBenefitDialogVisible.value = false;
-    } else {
-      console.error(response.error);
-    }
-  } catch (error) {
-    console.error(error);
-  } finally {
-  }
-};
-const openGajiModal = async () => {
-  isGajiDialogVisible.value = true;
-  const response = await useApi("/data-masters?all=1", {
-    method: "GET",
-  });
-  if (response.data.value) {
-    const data: any = await response.data.value;
-    const dataMasters = data.data;
-
-    const tugasData = dataMasters.filter(
-      (item: any) => item.tipe_master_data === "Tugas"
-    );
-    const produkData = dataMasters.filter(
-      (item: any) => item.tipe_master_data === "Produk"
-    );
-    masterTugasData.value = tugasData.map((item: any) => ({
-      title: item.name,
-      value: item.id,
-    }));
-    masterProdukData.value = produkData.map((item: any) => ({
-      title: item.name,
-      value: item.id,
-    }));
-  } else {
-    console.error(response.error);
-  }
-};
-const suspendEmployee = async () => {
-  const response = await $api("/employees/fire", {
-    method: "POST",
-    body: {
-      employee_id: employeeData.value.id,
-    },
-  });
-  const data = await response;
-  if (data.status == 200) {
-    employeeData.value.status = "Inactive";
-  } else {
-    console.log();
-  }
+  return "primary";
 };
 </script>
 <template>
@@ -285,13 +209,6 @@ const suspendEmployee = async () => {
               </div>
             </div>
           </VCardText>
-        </VCardText>
-        <VCardText class="d-flex justify-center gap-x-4">
-          <VBtn variant="elevated"> Edit </VBtn>
-
-          <VBtn variant="tonal" color="error" @click="suspendEmployee">
-            Suspend
-          </VBtn>
         </VCardText>
       </VCard>
     </VCol>
@@ -393,72 +310,6 @@ const suspendEmployee = async () => {
                   class="d-flex justify-space-between align-center flex-wrap gap-4"
                 >
                   <h5 class="text-h5">Daftar Gaji</h5>
-
-                  <div>
-                    <VDialog
-                      v-model="isGajiDialogVisible"
-                      persistent
-                      width="600"
-                    >
-                      <!-- Activator -->
-                      <template #activator="{ props }">
-                        <VBtn
-                          @click="openGajiModal"
-                          v-bind="props"
-                          prepend-icon="tabler-plus"
-                        >
-                          Tambah Gaji
-                        </VBtn>
-                      </template>
-
-                      <!-- Dialog close btn -->
-                      <DialogCloseBtn
-                        @click="isGajiDialogVisible = !isGajiDialogVisible"
-                      />
-
-                      <!-- Dialog Content -->
-                      <VCard title="Tambah Gaji">
-                        <VCardText>
-                          <VRow>
-                            <VCol cols="12" sm="6">
-                              <AppSelect
-                                v-model="formGaji.task_type_id"
-                                :items="masterTugasData"
-                                label="Tugas"
-                                placeholder="Select Item"
-                              />
-                            </VCol>
-                            <VCol cols="12" sm="6">
-                              <AppSelect
-                                v-model="formGaji.product_id"
-                                :items="masterProdukData"
-                                label="Produk"
-                                placeholder="Select Item"
-                              />
-                            </VCol>
-                            <VCol cols="12" sm="6">
-                              <AppTextField
-                                v-model="formGaji.amount"
-                                label="Nominal Per Pcs"
-                                placeholder="0"
-                                type="number"
-                              />
-                            </VCol>
-                          </VRow>
-                        </VCardText>
-                        <VCardText class="d-flex justify-end flex-wrap gap-3">
-                          <VBtn
-                            variant="tonal"
-                            color="secondary"
-                            @click="isGajiDialogVisible = false"
-                          >
-                            Tutup
-                          </VBtn>
-                          <VBtn @click="simpanGaji"> Simpan </VBtn>
-                        </VCardText>
-                      </VCard>
-                    </VDialog>
-                  </div>
                 </VCardText>
                 <VDivider />
                 <VDataTableServer
@@ -478,14 +329,6 @@ const suspendEmployee = async () => {
                       </div>
                     </div>
                   </template>
-                  <template #item.actions="{ item }">
-                    <IconBtn>
-                      <VIcon icon="tabler-edit" />
-                    </IconBtn>
-                    <IconBtn>
-                      <VIcon icon="tabler-trash" />
-                    </IconBtn>
-                  </template>
                 </VDataTableServer>
               </VCard>
             </VCol>
@@ -495,66 +338,6 @@ const suspendEmployee = async () => {
                   class="d-flex justify-space-between align-center flex-wrap gap-4"
                 >
                   <h5 class="text-h5">Daftar Bonus & Tunjangan</h5>
-
-                  <div>
-                    <VDialog
-                      v-model="isBenefitDialogVisible"
-                      persistent
-                      width="600"
-                    >
-                      <!-- Activator -->
-                      <template #activator="{ props }">
-                        <VBtn
-                          @click="isBenefitDialogVisible = true"
-                          v-bind="props"
-                          prepend-icon="tabler-plus"
-                        >
-                          Tambah Benefit
-                        </VBtn>
-                      </template>
-
-                      <!-- Dialog close btn -->
-                      <DialogCloseBtn
-                        @click="
-                          isBenefitDialogVisible = !isBenefitDialogVisible
-                        "
-                      />
-
-                      <!-- Dialog Content -->
-                      <VCard title="Tambah Benefit">
-                        <VCardText>
-                          <VRow>
-                            <VCol cols="12" sm="6">
-                              <AppTextField
-                                v-model="formBenefit.name"
-                                label="Nama Benefit"
-                                placeholder="0"
-                                type="text"
-                              />
-                            </VCol>
-                            <VCol cols="12" sm="6">
-                              <AppTextField
-                                v-model="formBenefit.amount"
-                                label="Nominal Per Minggu"
-                                placeholder="0"
-                                type="number"
-                              />
-                            </VCol>
-                          </VRow>
-                        </VCardText>
-                        <VCardText class="d-flex justify-end flex-wrap gap-3">
-                          <VBtn
-                            variant="tonal"
-                            color="secondary"
-                            @click="isBenefitDialogVisible = false"
-                          >
-                            Tutup
-                          </VBtn>
-                          <VBtn @click="simpanBenefit"> Simpan </VBtn>
-                        </VCardText>
-                      </VCard>
-                    </VDialog>
-                  </div>
                 </VCardText>
                 <VDivider />
                 <VDataTableServer
@@ -574,14 +357,6 @@ const suspendEmployee = async () => {
                       </div>
                     </div>
                   </template>
-                  <template #item.actions="{ item }">
-                    <IconBtn>
-                      <VIcon icon="tabler-edit" />
-                    </IconBtn>
-                    <IconBtn>
-                      <VIcon icon="tabler-trash" />
-                    </IconBtn>
-                  </template>
                 </VDataTableServer>
               </VCard>
             </VCol>
@@ -598,30 +373,89 @@ const suspendEmployee = async () => {
                 </VCardText>
                 <VDivider />
                 <VDataTableServer
-                  :itemsLength="5"
+                  v-model:items-per-page="itemsPerPage"
+                  v-model:page="page"
+                  :items-length="masterPaySlipData.values.length"
+                  :items="masterPaySlipData"
                   :headers="headersSlipGaji"
-                  :items="masterSlipGajiData"
-                  :items-per-page="5"
+                  class="text-no-wrap"
                 >
-                  <template #item.amount="{ item }: any">
+                  <template #item.number="{ index }">
+                    {{ index + 1 }}
+                  </template>
+
+                  <template #item.payslipitems="{ item }: any">
+                    <div class="d-flex align-center gap-x-4 pa-3">
+                      <div class="d-flex flex-column">
+                        <h6 class="text-base">
+                          <VTable class="text-no-wrap border">
+                            <thead>
+                              <tr>
+                                <th>Nama Aktifitas</th>
+                                <th>Gaji</th>
+                                <th>Kuantiti</th>
+                                <th>Sub Total</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr
+                                v-for="(
+                                  payslipItem, index
+                                ) in item.payslip_items"
+                                :key="index"
+                              >
+                                <td class="text-body-1">
+                                  {{ payslipItem.activityName }}
+                                </td>
+                                <td class="text-body-1">
+                                  Rp. {{ formatCurrency(payslipItem.salary) }}
+                                </td>
+                                <td class="text-body-1">
+                                  {{ payslipItem.quantity }} Pcs
+                                </td>
+                                <td class="text-body-1">
+                                  Rp. {{ formatCurrency(payslipItem.total) }}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </VTable>
+                        </h6>
+                      </div>
+                    </div>
+                  </template>
+                  <template #item.total="{ item }: any">
                     <div class="d-flex align-center gap-x-4">
                       <div class="d-flex flex-column">
                         <h6 class="text-base">
                           <p class="font-weight-medium text-link">
-                            {{ formatCurrency(item.amount) }}
+                            Rp. {{ formatCurrency(item.total) }}
                           </p>
                         </h6>
                       </div>
                     </div>
                   </template>
-                  <template #item.actions="{ item }">
-                    <IconBtn>
-                      <VIcon icon="tabler-edit" />
-                    </IconBtn>
-                    <IconBtn>
-                      <VIcon icon="tabler-trash" />
-                    </IconBtn>
+                  <!-- Status -->
+                  <template #item.status="{ item }: any">
+                    <VChip
+                      :color="resolveStatusVariant(item.status)"
+                      size="small"
+                      label
+                      class="text-capitalize"
+                    >
+                      {{ item.status }}
+                    </VChip>
                   </template>
+
+                  <!-- Actions -->
+
+                  <!-- pagination -->
+                  <!-- <template #bottom>
+                    <TablePagination
+                      v-model:page="page"
+                      :items-per-page="itemsPerPage"
+                      :total-items="totalUsers"
+                    />
+                  </template> -->
                 </VDataTableServer>
               </VCard>
             </VCol>
