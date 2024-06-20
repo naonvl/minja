@@ -152,16 +152,16 @@ const fetchData = async () => {
       const dataMasters = data.data;
 
       masterTugasData.value = dataMasters.filter(
-        (item: any) => item.tipe_master_data === "Tugas"
+        (item: any) => item.type_master_data === "task"
       );
       masterDepartementData.value = dataMasters.filter(
-        (item: any) => item.tipe_master_data === "Departemen"
+        (item: any) => item.type_master_data === "department"
       );
       masterProdukData.value = dataMasters.filter(
-        (item: any) => item.tipe_master_data === "Produk"
+        (item: any) => item.type_master_data === "produk"
       );
       masterBrandData.value = dataMasters.filter(
-        (item: any) => item.tipe_master_data === "Brand"
+        (item: any) => item.type_master_data === "brand"
       );
     } else {
       console.error(response.error);

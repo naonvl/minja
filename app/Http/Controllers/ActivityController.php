@@ -23,9 +23,8 @@ class ActivityController extends Controller
 
             $result = [];
             $groups = $activities->groupBy(function ($activity) {
-                return $this->formatDate($activity->created_at) . '-' . $activity->user->fullname;
+                return $this->formatDate($activity->created_at) . '-' . $activity->employee->fullname;
             });
-
             $result = $groups->map(function ($groupedActivities, $dateAndFullname) {
                 [$date, $fullname] = explode('-', $dateAndFullname);
             

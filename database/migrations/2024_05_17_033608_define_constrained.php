@@ -13,9 +13,6 @@ return new class extends Migration {
         Schema::table('users', function (Blueprint $table) {
             $table->foreignId('role_id')->constrained('roles');
         });
-        Schema::table('data_masters', function (Blueprint $table) {
-            $table->foreignId('master_type_id')->constrained('master_types');
-        });
         Schema::table('salaries', function (Blueprint $table) {
             $table->foreignId('product_id')->constrained('products');
             $table->foreignId('employee_id')->constrained('employees');

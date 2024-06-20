@@ -9,7 +9,7 @@ class DataMaster extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'master_type_id','tipe_master_data'];
+    protected $fillable = ['name','type_master_data'];
     
     public function masterType()
     {

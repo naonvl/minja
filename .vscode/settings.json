@@ -6,7 +6,7 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.autoClosingBrackets": "always"
   },
   "[markdown]": {
@@ -93,5 +93,6 @@
       }
     ]
   },
-  "CodeGPT.apiKey": "Groq"
+  "CodeGPT.apiKey": "Groq",
+  "CodeGPT.Autocomplete.enabled": true
 }

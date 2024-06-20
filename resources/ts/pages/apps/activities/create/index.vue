@@ -34,13 +34,13 @@ const fetchEmployees = async () => {
       const dataMasters = data.data;
 
       const taskData = dataMasters.filter(
-        (item: any) => item.tipe_master_data === "Tugas"
+        (item: any) => item.type_master_data === "task"
       );
       const productData = dataMasters.filter(
-        (item: any) => item.tipe_master_data === "Produk"
+        (item: any) => item.type_master_data === "produk"
       );
       const brandData = dataMasters.filter(
-        (item: any) => item.tipe_master_data === "Brand"
+        (item: any) => item.type_master_data === "brand"
       );
       const taskDataMasters = taskData.map((item: any) => ({
         title: item.name,

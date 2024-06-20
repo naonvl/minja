@@ -7,13 +7,11 @@ const itemsPerPage = ref(10);
 const page = ref(1);
 const sortBy = ref();
 const form = ref({
-  username: "",
-  fullname: "",
-  email: "",
-  department: "Select Item",
-  password: "",
-  confirmPassword: "",
+  dates: "",
 });
+const progress = ref(0);
+const interval = ref();
+const isGenerating = ref(false);
 const items = ["Foo", "Bar", "Fizz", "Buzz"];
 const orderBy = ref();
 const searchQuery = ref("");
@@ -67,20 +65,49 @@ const fetchPayslips = async () => {
   }
 };
 fetchPayslips();
-const generatePaySlip = async () => {
+const generatePaySlip = async () => {};
+const handleSubmit = async () => {
+  let dateArray = form.value.dates.split(" to ");
+  let startDate = dateArray[0];
+  let endDate = dateArray[1];
+  progress.value = 0;
+  isGenerating.value = true;
   const response = await $api("/generate-payslip", {
     method: "POST",
-    body: {},
+    body: {
+      start_date: startDate,
+      end_date: endDate,
+    },
   });
   console.log(await response.data);
-  fetchPayslips();
+  isDialogVisible.value = false;
+  fetchProgress();
 };
+const fetchProgress = async () => {
+  try {
+    const response = await useApi("/payslip-progress", {
+      method: "GET",
+    });
+    const value: any = await response.data.value;
+    progress.value = value.progress;
+    console.log(value);
+
+    if (value.progress < 100) {
+      setTimeout(fetchProgress, 1000); // Fetch progress every second
+    } else {
+      isGenerating.value = false;
+      fetchPayslips(); // Fetch updated payslips after generation is complete
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 const payAll = async () => {
   const response = await $api("/payall-payslip", {
     method: "POST",
     body: {},
   });
-  console.log(await response.data);
   fetchPayslips();
 };
 const unpaidAll = async () => {
@@ -119,16 +146,75 @@ const formatCurrency = (amount: number) => {
         <div v-if="!isMobile" style="inline-size: 15.625rem">
           <AppTextField v-model="searchQuery" placeholder="Search User" />
         </div>
-
+        <VProgressCircular
+          v-if="isGenerating"
+          :rotate="360"
+          :size="30"
+          :width="3"
+          :model-value="progress"
+          color="primary"
+        >
+          {{ progress }}
+        </VProgressCircular>
         <!-- 👉 Export button -->
-        <VBtn
+        <!-- <VBtn
           size="small"
           @click="generatePaySlip"
           variant="tonal"
           prepend-icon="tabler-report"
+          :disabled="isGenerating"
         >
           Generate
-        </VBtn>
+        </VBtn> -->
+        <VDialog
+          v-if="user.user_type == 'admin'"
+          v-model="isDialogVisible"
+          persistent
+          width="600"
+        >
+          <!-- Activator -->
+          <template #activator="{ props }">
+            <VBtn
+              @click="isDialogVisible = true"
+              size="small"
+              variant="tonal"
+              v-bind="props"
+              prepend-icon="tabler-report"
+            >
+              Generate
+            </VBtn>
+          </template>
+
+          <!-- Dialog close btn -->
+          <DialogCloseBtn @click="isDialogVisible = !isDialogVisible" />
+
+          <!-- Dialog Content -->
+          <VCard title="Generate Slip Gaji">
+            <VCardText>
+              <VRow>
+                <VCol cols="12">
+                  <AppDateTimePicker
+                    v-model="form.dates"
+                    label="Tanggal Mulai"
+                    placeholder="Tanggal Mulai"
+                    :config="{ mode: 'range' }"
+                  />
+                </VCol>
+              </VRow>
+            </VCardText>
+
+            <VCardText class="d-flex justify-end flex-wrap gap-3">
+              <VBtn
+                variant="tonal"
+                color="secondary"
+                @click="isDialogVisible = false"
+              >
+                Tutup
+              </VBtn>
+              <VBtn @click="handleSubmit"> Simpan </VBtn>
+            </VCardText>
+          </VCard>
+        </VDialog>
         <VBtn
           size="small"
           @click="payAll"

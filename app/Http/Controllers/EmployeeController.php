@@ -103,11 +103,17 @@ class EmployeeController extends Controller
     
         $salaries = $this->formatSalaries($employee->salaries);
         $currentActivities = $this->filterThisWeekActivities($employee->activities);
-        $estSalary = $this->calculateEstimatedSalary($employee, $currentActivities);
+        $qtyTotal = array_reduce($currentActivities, function($carry, $item) {
+            return $carry + $item['qty'];
+        }, 0);
+        $isSalarySet = Salary::where("employee_id", $employee->id)->select('id')->first();
+        $estSalary = $isSalarySet ? $this->calculateEstimatedSalary($employee, $currentActivities) : 0;
         $benefits = $this->formatBenefits($employee->benefits);
     
         $employee->setRelation('salaries', $salaries);
         $employee->setRelation('benefits', $benefits);
+        $employee->estSalary = $estSalary;
+        $employee->totalActivities = $qtyTotal;
     
         return response()->json(['data' => $employee, 'message' => 'Employee found successfully'], 200);
     }
@@ -125,15 +131,18 @@ class EmployeeController extends Controller
     
     protected function filterThisWeekActivities($activities)
     {
-        return $activities->filter(function ($activity) {
+        $activities->filter(function ($activity) {
             return $activity->created_at->isBetween(Carbon::now()->startOfWeek(), Carbon::now());
         });
+        return $activities->toArray();
     }
     
     protected function calculateEstimatedSalary($employee, $currentActivities)
     {
         $totalAmount = 0;
         foreach ($currentActivities as $activity) {
+            $salary = Salary::where('employee_id', $activity->user_id)->where('task_type_id', $activity->task_type_id)->where('product_id',$activity->product_id)->get();
+            dd($salary);
             $amount = $this->employeeRepository->getSalaryAmount($employee->id, $activity->task_type_id, $activity->product_id);
             $totalAmount += (int)$amount;
         }

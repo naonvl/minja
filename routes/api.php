@@ -57,6 +57,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('/payall-payslip', [PayslipController::class, 'payAll']);
     Route::post('/unpaidall-payslip', [PayslipController::class, 'unpaidAll']);
     Route::get('/payslips/user/{employee_id}', [PayslipController::class, 'getTotalPayslips']);
+    Route::get('/payslip-progress', [PayslipController::class, 'getProgress']);
     Route::apiResource('salaries', SalaryController::class);
     Route::apiResource('benefits', BenefitController::class);
     Route::apiResource('payslips', PayslipController::class);

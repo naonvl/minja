@@ -186,10 +186,10 @@ const openGajiModal = async () => {
     const dataMasters = data.data;
 
     const tugasData = dataMasters.filter(
-      (item: any) => item.tipe_master_data === "Tugas"
+      (item: any) => item.type_master_data === "task"
     );
     const produkData = dataMasters.filter(
-      (item: any) => item.tipe_master_data === "Produk"
+      (item: any) => item.type_master_data === "produk"
     );
     masterTugasData.value = tugasData.map((item: any) => ({
       title: item.name,

@@ -23,7 +23,7 @@ class DataMasterController extends Controller
                 }
 
                 if ($request->has('tipeData')) {
-                    $dataMasters->where('tipe_master_data', $request->input('tipeData'));
+                    $dataMasters->where('type_master_data', $request->input('tipeData'));
                 }
 
                 $perPage = 10; // adjust this value to change the number of items per page
@@ -66,7 +66,7 @@ class DataMasterController extends Controller
             $tipe = strtolower($validatedData['tipeData']);
             $dataMaster = DataMaster::create([
                 'name'=>$validatedData['name'],
-                'tipe_master_data'=>$tipe
+                'type_master_data'=>$tipe
             ]);
 
             if (!$dataMaster) {
@@ -113,7 +113,7 @@ class DataMasterController extends Controller
             }
 
             $dataMaster->name = $validatedData['name'];
-            $dataMaster->tipe_master_data = $validatedData['tipeData'];
+            $dataMaster->type_master_data = $validatedData['tipeData'];
             $dataMaster->save();
 
             return response()->json(['data' => $dataMaster]);

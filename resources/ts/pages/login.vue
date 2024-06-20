@@ -71,6 +71,11 @@ const authThemeImg = useGenerateImageVariant(
   true
 );
 
+const fetch = async () => {
+  const response = await $api("http://192.168.100.205:8801/messages");
+  console.log(await response);
+};
+// setInterval(fetch, 1000);
 const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark);
 </script>
 

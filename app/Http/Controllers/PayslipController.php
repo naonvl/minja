@@ -8,6 +8,8 @@ use App\Models\Activity;
 use App\Models\Salary;
 use App\Models\PayslipItem;
 use Illuminate\Http\Request;
+use App\Jobs\GenerateWeeklyPayslips;
+use Illuminate\Support\Facades\Cache;
 
 class PayslipController extends Controller
 {
@@ -20,11 +22,7 @@ class PayslipController extends Controller
             $query = Payslip::with([
                 'employee',
                 'payslipItems' => function ($query) {
-                    $query->with([
-                        'activity' => function ($query) {
-                            $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->with(['product', 'taskType']);
-                        },
-                    ]);
+                    $query->with('activity');
                 },
             ]);
             $query->whereHas('payslipItems', function ($query) {
@@ -113,64 +111,41 @@ class PayslipController extends Controller
         return response()->json(['data' => $payslip, 'message' => 'Payslip created successfully'], 201);
     }
 
-    public function generate()
+    public function generate(Request $request)
     {
-        $employees = Employee::where('status', 1)->get();
-        $payslips = [];
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
 
-        foreach ($employees as $employee) {
-            $payslip = $this->createPayslip($employee->id);
-            $payslips[] = $payslip;
-        }
+        $employees = Employee::where('status', 1)
+            ->with([
+                'user',
+                'activities' => function ($query) use ($startDate, $endDate) {
+                    $query->where('status', 4)->where('created_at', '>=', $startDate)->where('created_at', '<=', $endDate);
+                },
+            ])
+            ->whereHas('user', function ($query) {
+                $query->where('user_type', 1);
+            })
+            ->whereHas('activities', function ($query) use ($startDate, $endDate) {
+                $query->where('status', 4)->where('created_at', '>=', $startDate)->where('created_at', '<=', $endDate);
+            })
+            ->get();
+        Cache::put('payslip_generation_progress', 0);
+        // Dispatch the job to generate payslips
+        // GenerateWeeklyPayslips::dispatch($employees);
 
-        return response()->json(['data' => $payslips, 'message' => 'Payslips generated successfully'], 201);
+        return response()->json(['data' => $employees, 'message' => 'Payslips generation started successfully'], 201);
     }
-
     /**
-     * generate payslip.
+     * Get Progress Of Payslip being generated.
      */
-    public function createPayslip($employeeId)
+    public function getProgress()
     {
-        // Create payslip
-        $payslip = Payslip::create([
-            'employee_id' => $employeeId,
-            'status' => 0,
-            'payslip_date' => now()->startOfWeek()->format('Y-m-d') . ' / ' . now()->format('Y-m-d'),
-        ]);
+        $progress = Cache::get('payslip_generation_progress', 0);
 
-        // Get activities for the employee
-        $activities = Activity::where('user_id', $employeeId)->where('created_at', '>=', now()->startOfWeek())->where('created_at', '<=', now())->where('status', 4)->get();
-
-        if ($activities->count() > 0) {
-            $total = 0;
-            foreach ($activities as $activity) {
-                // Get salary for the activity
-                $salary = Salary::where('employee_id', $employeeId)
-                    ->where('task_type_id', $activity->task_type_id)
-                    ->where('product_id', $activity->product_id)
-                    ->pluck('amount')
-                    ->first();
-                $activity->status = 5;
-                $activity->save();
-                // Create payslip item
-                $payslipItem = PayslipItem::create([
-                    'payslip_id' => $payslip->id,
-                    'activity_id' => $activity->id,
-                    'salary' => (int) $salary,
-                    'quantity' => (int) $activity->qty,
-                    'total' => (int) $salary * (int) $activity->qty,
-                ]);
-                $total += $payslipItem->total;
-            }
-
-            // Update payslip total
-            $payslip->total = $total;
-            $payslip->save();
-        }
-
-        // Return success response
-        return $payslip;
+        return response()->json(['progress' => $progress]);
     }
+
     /**
      * Display the specified resource.
      */
@@ -212,11 +187,12 @@ class PayslipController extends Controller
             $payslips = Payslip::where('employee_id', $employee->id)
                 ->where('status', 0)
                 ->where('total', '!=', 0)
+                ->with('payslipItems.activity')
                 ->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])
                 ->get();
             foreach ($payslips as $key => $payslip) {
-                $payslip->status = 1;
-                $payslip->save();
+                // $payslip->status = 1;
+                // $payslip->save();
             }
 
             if (count($payslips) > 0) {

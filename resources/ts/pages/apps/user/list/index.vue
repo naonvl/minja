@@ -46,7 +46,7 @@ const resolveUserStatusVariant = (stat: string) => {
 };
 const masterdepartmentData = ref([]);
 const openModal = async () => {
-  const response = await useApi("/data-masters?tipeData=departemen", {
+  const response = await useApi("/data-masters?tipeData=department", {
     method: "GET",
   });
   const data: any = await response.data.value;

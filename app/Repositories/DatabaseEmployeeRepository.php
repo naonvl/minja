@@ -2,8 +2,8 @@
 
 namespace App\Repositories;
 
-use App\Contracts\EmployeeRepositoryInterface;
 use App\Models\Employee;
+use App\Contracts\EmployeeRepositoryInterface;
 
 class DatabaseEmployeeRepository implements EmployeeRepositoryInterface
 {

@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('data_masters', function (Blueprint $table) {
-            $table->string('tipe_master_data', 100)->nullable()->default('')->index();
-            $table->dropColumn('master_type_id');
+            $table->string('type_master_data', 100)->nullable()->default('')->index();
         });
     }
 
@@ -23,8 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('data_masters', function (Blueprint $table) {
-            $table->dropColumn('tipe_master_data');
-            $table->foreignId('master_type_id')->constrained('master_types');
+            $table->dropColumn('type_master_data');
         });
     }
 };

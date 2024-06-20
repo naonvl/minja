@@ -78,6 +78,7 @@ class AuthController extends Controller
             'userAbilityRules' => $user->user_type == 'admin' ? $adminRules : $clientRules,
         ]);
     }
+
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();
@@ -89,4 +90,83 @@ class AuthController extends Controller
             200,
         );
     }
+
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'username
+            ' => 'required|username
+            ',
+        ]);
+
+        $user = User::where('username
+        ', $request->input('username'))->first();
+
+        if (!$user) {
+            return response()->json(
+                [
+                    'error' => 'User not found',
+                    'message' => 'username tidak ditemukan.',
+                ],
+                404,
+            );
+        }
+
+        $token = Str::random(60);
+
+        DB::table('password_resets')->insert([
+            'email' => $user->email,
+            'token' => $token,
+            'created_at' => Carbon::now()
+        ]);
+
+        Mail::to($user->email)->send(new PasswordResetMail($token));
+
+        return response()->json(
+            [
+                'message' => 'Link reset password telah dikirim ke email Anda.',
+            ],
+            200,
+        );
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => 'required|string',
+            'email' => 'required|email',
+            'password' => 'required|string|confirmed',
+            'password_confirmation' => 'required|string',
+        ]);
+
+        $passwordReset = DB::table('password_resets')->where([
+            'email' => $request->input('email'),
+            'token' => $request->input('token'),
+        ])->first();
+
+        if (!$passwordReset) {
+            return response()->json(
+                [
+                    'error' => 'Invalid token',
+                    'message' => 'Token tidak valid.',
+                ],
+                401,
+            );
+        }
+
+        $user = User::where('email', $request->input('email'))->first();
+
+        $user->password = Hash::make($request->input('password'));
+        $user->save();
+
+        DB::table('password_resets')->where('email', $request->input('email'))->delete();
+
+        return response()->json(
+            [
+                'message' => 'Password berhasil direset.',
+            ],
+            200,
+        );
+    }
+    
 }
