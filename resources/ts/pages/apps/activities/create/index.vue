@@ -104,13 +104,16 @@ const addItem = () => {
   });
 };
 const handleSubmit = async () => {
-  const response = await $api("/activities", {
-    method: "POST",
-    body: {
-      employee_id: form.value[selectedEmployee.value.value].employee,
-      activities: form.value[selectedEmployee.value.value].activities,
-    },
-  });
+  await Promise.all(form.value.map(async (form: any) => {
+    const response = await $api("/activities", {
+      method: "POST",
+      body: {
+        employee_id: form.employee,
+        activities: form.activities,
+      },
+    });
+    console.log(response);
+  }));
   localStorage.removeItem("unsavedFormData");
   router.replace("/apps/activities/list");
 };
