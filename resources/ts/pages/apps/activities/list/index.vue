@@ -82,26 +82,19 @@ fetchActivities();
 
       <VCardText class="d-flex flex-wrap justify-space-between gap-4">
         <div class="me-3 d-flex gap-3">
-          <AppSelect
-            :model-value="itemsPerPage"
-            :items="limits"
-            style="inline-size: 6.25rem"
-            @update:model-value="itemsPerPage = parseInt($event, 10)"
-          />
+          <AppSelect :model-value="itemsPerPage" :items="limits" style="inline-size: 6.25rem"
+            @update:model-value="itemsPerPage = parseInt($event, 10)" />
         </div>
         <VSpacer v-if="!isMobile" />
 
         <div class="app-user-search-filter d-flex align-center flex-wrap gap-4">
           <!-- 👉 Search  -->
           <div style="inline-size: 15.625rem">
-            <AppTextField
-              v-model="searchQuery"
-              placeholder="Search Aktifitas"
-            />
+            <AppTextField v-model="searchQuery" placeholder="Search Aktifitas" />
           </div>
 
           <!-- 👉 Add user button -->
-          <VBtn @click="create" prepend-icon="tabler-plus">
+          <VBtn v-if="userData.role_id == 1" @click="create" prepend-icon="tabler-plus">
             Input Aktifitas
           </VBtn>
         </div>
@@ -110,14 +103,8 @@ fetchActivities();
       <VDivider />
 
       <!-- SECTION datatable -->
-      <VDataTableServer
-        v-model:items-per-page="itemsPerPage"
-        v-model:page="page"
-        :items="activities"
-        :items-length="totalUsers"
-        :headers="headers"
-        class="text-no-wrap"
-      >
+      <VDataTableServer v-model:items-per-page="itemsPerPage" v-model:page="page" :items="activities"
+        :items-length="totalUsers" :headers="headers" class="text-no-wrap">
         <template #item.number="{ index }">
           {{ index + 1 }}
         </template>
@@ -138,10 +125,7 @@ fetchActivities();
             <div class="d-flex flex-column">
               <h6 class="text-base">
                 <p class="font-weight-medium text-link mb-0 pa-2">
-                  <span
-                    v-for="(activity, index) in item.activities"
-                    :key="index"
-                  >
+                  <span v-for="(activity, index) in item.activities" :key="index">
                     <br v-if="index > 0 && index != item.activities.length" />
                     {{ activity }}
                   </span>
@@ -177,11 +161,7 @@ fetchActivities();
 
         <!-- pagination -->
         <template #bottom>
-          <TablePagination
-            v-model:page="page"
-            :items-per-page="itemsPerPage"
-            :total-items="totalUsers"
-          />
+          <TablePagination v-model:page="page" :items-per-page="itemsPerPage" :total-items="totalUsers" />
         </template>
       </VDataTableServer>
       <!-- SECTION -->

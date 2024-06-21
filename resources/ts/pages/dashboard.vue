@@ -72,32 +72,17 @@ if (userData.value?.user_type == "client") {
 </script>
 <template>
   <div class="mb-6">
-    <VBtn
-      @click="routeTo('/apps/activities/create')"
-      prepend-icon="tabler-plus"
-    >
+    <VBtn v-if="userData.role_id == 1" @click="routeTo('/apps/activities/create')" prepend-icon="tabler-plus">
       Input Aktifitas
     </VBtn>
   </div>
   <VRow v-if="userData.user_type == 'client'">
-    <VCol
-      v-for="(data, index) in dashboardCardData"
-      :key="index"
-      cols="12"
-      md="3"
-      sm="6"
-    >
+    <VCol v-for="(data, index) in dashboardCardData" :key="index" cols="12" md="3" sm="6">
       <div>
-        <VCard
-          class="logistics-card-statistics cursor-pointer"
-          :style="
-            data.isHover
-              ? `border-block-end-color: rgb(var(--v-theme-${data.color}))`
-              : `border-block-end-color: rgba(var(--v-theme-${data.color}),0.38)`
-          "
-          @mouseenter="data.isHover = true"
-          @mouseleave="data.isHover = false"
-        >
+        <VCard class="logistics-card-statistics cursor-pointer" :style="data.isHover
+          ? `border-block-end-color: rgb(var(--v-theme-${data.color}))`
+          : `border-block-end-color: rgba(var(--v-theme-${data.color}),0.38)`
+          " @mouseenter="data.isHover = true" @mouseleave="data.isHover = false">
           <VCardText>
             <div class="d-flex align-center gap-x-4 mb-1">
               <VAvatar variant="tonal" :color="data.color" rounded>

@@ -17,6 +17,9 @@ class DatabaseSeeder extends Seeder
         $role = Role::create([
             'name' => 'Root',
         ]);
+        $roleUser = Role::create([
+            'name' => 'User',
+        ]);
         User::create([
             'email' => 'natestudio@example.com',
             'username' => 'natestudio',
