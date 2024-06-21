@@ -1,1 +1,0 @@
-import{d as s,j as t}from"./main-4BgHkaow.js";import{u as n}from"./useApi-BzX_iQ1o.js";const l=s({__name:"[id]",setup(a){const o=t();return console.log("test"),(async()=>{const e=await n("/employees"+o.params.id);console.log(e)})(),(e,p)=>null}});export{l as default};
