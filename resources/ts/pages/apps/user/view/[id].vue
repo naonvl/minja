@@ -129,24 +129,36 @@ const simpanGaji = async () => {
       },
     });
 
+    isGajiDialogVisible.value = false;
+      
     if (response.data) {
-      masterGajiData.value = [
-        ...masterGajiData.value,
-        {
-          id: masterGajiData.value.length + 1,
-          name: response.data.value.name,
-          nominal: response.data.value.amount,
-        },
-      ];
-      isGajiDialogVisible.value = false;
+      // masterGajiData.value = [
+      //   ...masterGajiData.value,
+      //   {
+      //     id: masterGajiData.value.length + 1,
+      //     name: response.data.value.name,
+      //     nominal: response.data.value.amount,
+      //   },
+      // ];
+      fetchEmployee();
+      
     } else {
       console.error(response.error);
     }
+    
   } catch (error) {
     console.error(error);
   } finally {
   }
 };
+const hapusGaji = async (id:number)=>{  
+  const response = await $api("/salaries/"+id, {
+      method: "DELETE",
+    });
+    console.log(response);
+    fetchEmployee();
+    
+}
 const simpanBenefit = async () => {
   try {
     const response = await $api("/benefits", {
@@ -478,11 +490,11 @@ const suspendEmployee = async () => {
                       </div>
                     </div>
                   </template>
-                  <template #item.actions="{ item }">
+                  <template #item.actions="{ item }:any">
                     <IconBtn>
                       <VIcon icon="tabler-edit" />
                     </IconBtn>
-                    <IconBtn>
+                    <IconBtn @click="hapusGaji(item.id)">
                       <VIcon icon="tabler-trash" />
                     </IconBtn>
                   </template>
@@ -574,11 +586,11 @@ const suspendEmployee = async () => {
                       </div>
                     </div>
                   </template>
-                  <template #item.actions="{ item }">
+                  <template #item.actions="{ item }:any">
                     <IconBtn>
                       <VIcon icon="tabler-edit" />
                     </IconBtn>
-                    <IconBtn>
+                    <IconBtn @click="hapusGaji(item.id)">
                       <VIcon icon="tabler-trash" />
                     </IconBtn>
                   </template>
@@ -614,11 +626,11 @@ const suspendEmployee = async () => {
                       </div>
                     </div>
                   </template>
-                  <template #item.actions="{ item }">
+                  <template #item.actions="{ item }:any">
                     <IconBtn>
                       <VIcon icon="tabler-edit" />
                     </IconBtn>
-                    <IconBtn>
+                    <IconBtn @click="hapusGaji(item.id)">
                       <VIcon icon="tabler-trash" />
                     </IconBtn>
                   </template>

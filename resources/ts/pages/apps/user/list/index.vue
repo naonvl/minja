@@ -58,8 +58,6 @@ const openModal = async () => {
   isDialogVisible.value = true;
 };
 const handleSubmit = async () => {
-  console.log(form.value);
-
   if (
     form.value.confirmPassword == "" ||
     form.value.confirmPassword != form.value.password
@@ -78,8 +76,7 @@ const handleSubmit = async () => {
     });
 
     if (response.data) {
-      console.log(response.data);
-
+      fetchEmployees();
       isDialogVisible.value = false;
     } else {
       console.error(response.error);
@@ -124,12 +121,8 @@ fetchEmployees();
 
     <VCardText class="d-flex flex-wrap gap-4">
       <div class="me-3 d-flex gap-3">
-        <AppSelect
-          :model-value="itemsPerPage"
-          :items="limits"
-          style="inline-size: 6.25rem"
-          @update:model-value="itemsPerPage = parseInt($event, 10)"
-        />
+        <AppSelect :model-value="itemsPerPage" :items="limits" style="inline-size: 6.25rem"
+          @update:model-value="itemsPerPage = parseInt($event, 10)" />
       </div>
       <VSpacer v-if="!isMobile" />
 
@@ -145,12 +138,7 @@ fetchEmployees();
         </VBtn> -->
 
         <!-- 👉 Add user button -->
-        <VDialog
-          v-if="user.user_type == 'admin'"
-          v-model="isDialogVisible"
-          persistent
-          width="600"
-        >
+        <VDialog v-if="user.user_type == 'admin'" v-model="isDialogVisible" persistent width="600">
           <!-- Activator -->
           <template #activator="{ props }">
             <VBtn @click="openModal" v-bind="props" prepend-icon="tabler-plus">
@@ -166,70 +154,36 @@ fetchEmployees();
             <VCardText>
               <VRow>
                 <VCol cols="12" sm="6">
-                  <AppTextField
-                    v-model="form.fullname"
-                    label="Nama Lengkap"
-                    placeholder="John"
-                  />
+                  <AppTextField v-model="form.fullname" label="Nama Lengkap" placeholder="John" />
                 </VCol>
                 <VCol cols="12" sm="6">
-                  <AppSelect
-                    v-model="form.department"
-                    :items="masterdepartmentData"
-                    label="Departemen"
-                    placeholder="Select Item"
-                  />
+                  <AppSelect v-model="form.department" :items="masterdepartmentData" label="Departemen"
+                    placeholder="Select Item" />
                 </VCol>
                 <VCol cols="12" sm="6">
-                  <AppTextField
-                    v-model="form.email"
-                    label="Email"
-                    placeholder="johndoe@email.com"
-                  />
+                  <AppTextField v-model="form.email" label="Email" placeholder="johndoe@email.com" />
                 </VCol>
                 <VCol cols="12" sm="6">
-                  <AppTextField
-                    v-model="form.username"
-                    label="Username"
-                    placeholder="John"
-                  />
+                  <AppTextField v-model="form.username" label="Username" placeholder="John" />
                 </VCol>
                 <VCol cols="12" sm="6">
-                  <AppTextField
-                    v-model="form.password"
-                    label="Password"
-                    autocomplete="on"
-                    type="password"
-                    placeholder="············"
-                  />
+                  <AppTextField v-model="form.password" label="Password" autocomplete="on" type="password"
+                    placeholder="············" />
                 </VCol>
                 <VCol cols="12" sm="6">
-                  <AppTextField
-                    v-model="form.confirmPassword"
-                    label="Confirm Password"
-                    autocomplete="on"
-                    type="password"
-                    placeholder="············"
-                  />
+                  <AppTextField v-model="form.confirmPassword" label="Confirm Password" autocomplete="on"
+                    type="password" placeholder="············" />
                 </VCol>
               </VRow>
             </VCardText>
 
             <VCardText class="d-flex justify-end flex-wrap gap-3">
-              <VBtn
-                variant="tonal"
-                color="secondary"
-                @click="isDialogVisible = false"
-              >
+              <VBtn variant="tonal" color="secondary" @click="isDialogVisible = false">
                 Tutup
               </VBtn>
-              <VBtn
-                :disabled="
-                  form.confirmPassword == '' ||
-                  form.password !== form.confirmPassword
-                "
-                @click="handleSubmit"
-              >
+              <VBtn :disabled="form.confirmPassword == '' ||
+                form.password !== form.confirmPassword
+                " @click="handleSubmit">
                 Simpan
               </VBtn>
             </VCardText>
@@ -241,14 +195,8 @@ fetchEmployees();
     <VDivider />
 
     <!-- SECTION datatable -->
-    <VDataTableServer
-      v-model:items-per-page="itemsPerPage"
-      v-model:page="page"
-      :items="employees"
-      :items-length="totalUsers"
-      :headers="headers"
-      class="text-no-wrap"
-    >
+    <VDataTableServer v-model:items-per-page="itemsPerPage" v-model:page="page" :items="employees"
+      :items-length="totalUsers" :headers="headers" class="text-no-wrap">
       <template #item.number="{ index }">
         {{ index + 1 }}
       </template>
@@ -257,17 +205,11 @@ fetchEmployees();
         <div class="d-flex align-center gap-x-4">
           <div class="d-flex flex-column">
             <h6 class="text-base">
-              <RouterLink
-                v-if="user.user_type == 'admin'"
-                :to="{ name: 'apps-user-view-id', params: { id: item.id } }"
-                class="font-weight-medium text-link"
-              >
+              <RouterLink v-if="user.user_type == 'admin'" :to="{ name: 'apps-user-view-id', params: { id: item.id } }"
+                class="font-weight-medium text-link">
                 {{ item.fullname }}
               </RouterLink>
-              <p
-                v-if="user.user_type != 'admin'"
-                class="font-weight-medium text-link"
-              >
+              <p v-if="user.user_type != 'admin'" class="font-weight-medium text-link">
                 {{ item.fullname }}
               </p>
             </h6>
@@ -277,12 +219,7 @@ fetchEmployees();
 
       <!-- Status -->
       <template #item.status="{ item }: any">
-        <VChip
-          :color="resolveUserStatusVariant(item.status)"
-          size="small"
-          label
-          class="text-capitalize"
-        >
+        <VChip :color="resolveUserStatusVariant(item.status)" size="small" label class="text-capitalize">
           {{ item.status }}
         </VChip>
       </template>
@@ -302,11 +239,7 @@ fetchEmployees();
 
       <!-- pagination -->
       <template #bottom>
-        <TablePagination
-          v-model:page="page"
-          :items-per-page="itemsPerPage"
-          :total-items="totalUsers"
-        />
+        <TablePagination v-model:page="page" :items-per-page="itemsPerPage" :total-items="totalUsers" />
       </template>
     </VDataTableServer>
     <!-- SECTION -->

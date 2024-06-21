@@ -27,17 +27,26 @@ class SalaryController extends Controller
             'task_type_id' => 'required',
             'amount' => 'required',
         ]);
-        $salary = Salary::create($request->all());
+
+        $salary = Salary::updateOrCreate(
+            [
+                'employee_id' => $request->input('employee_id'),
+                'product_id' => $request->input('product_id'),
+                'task_type_id' => $request->input('task_type_id')
+            ],
+            [
+                'amount' => $request->input('amount')
+            ]
+        );
 
         if (!$salary) {
             return response()->json(['error' => 'Salary not created'], 500);
         }
-        $temp = Salary::find($salary->id)->with(['product','taskType']);
+        $temp = Salary::where('id',$salary->id)->with(['product','taskType'])->first();
         $temp->name = $temp->taskType->name . ' ' . $temp->product->name;
         $temp->amount = 'Rp. ' . number_format($temp->amount, 0, ',', '.');
         return response()->json(['data' => $temp, 'message' => 'Salary created successfully'], 201);
     }
-
     /**
      * Display the specified resource.
      */

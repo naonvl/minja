@@ -8,22 +8,12 @@ definePage({
 import { ref, watch } from "vue";
 import { useApi } from "../../../../composables/useApi";
 const router = useRouter();
-const optionCounter = ref(1);
+const optionCounter = ref([1]);
 const masterEmployeeData: any = ref([]);
 const masterTaskData = ref([]);
 const masterProdukData = ref([]);
 const masterBrandData = ref([]);
-const form = ref({
-  employee: "Pilih Karyawan",
-  activities: [
-    {
-      qty: null,
-      brand: "Pilih Brand",
-      task: "Pilih Tugas",
-      product: "Pilih Produk",
-    },
-  ],
-});
+const form: any = ref([]);
 const fetchEmployees = async () => {
   try {
     const response = await useApi("/data-masters?all=1", {
@@ -64,7 +54,30 @@ const fetchEmployees = async () => {
         title: item.fullname,
         value: item.id,
       }));
+      const storedFormData = localStorage.getItem("unsavedFormData");
+
+      employeeDataMasters.forEach((employee: any, index: number) => {
+
+        if (storedFormData) {
+          form.value[employee.value] = JSON.parse(storedFormData)[employee.value];
+          optionCounter.value[employee.value] = JSON.parse(storedFormData)[employee.value].activities.length;
+        } else {
+          form.value[employee.value] = {
+            employee: employee.value,
+            activities: [
+              {
+                qty: null,
+                brand: "Pilih Brand",
+                task: "Pilih Tugas",
+                product: "Pilih Produk",
+              }
+            ]
+          }
+          optionCounter.value[employee.value] = 1;
+        }
+      });
       masterEmployeeData.value = employeeDataMasters;
+      selectedEmployee.value = employeeDataMasters[0];
       masterTaskData.value = taskDataMasters;
       masterProdukData.value = productDataMasters;
       masterBrandData.value = brandDataMasters;
@@ -75,15 +88,15 @@ const fetchEmployees = async () => {
 };
 fetchEmployees();
 const removeItem = (index: number) => {
-  optionCounter.value -= 1;
-  form.value.activities.splice(index, 1);
-  form.value.activities.splice(index, 1);
-  form.value.activities.splice(index, 1);
-  form.value.activities.splice(index, 1);
+  optionCounter.value[selectedEmployee.value.value] -= 1;
+  form.value[selectedEmployee.value.value].activities.splice(index, 1);
+  form.value[selectedEmployee.value.value].activities.splice(index, 1);
+  form.value[selectedEmployee.value.value].activities.splice(index, 1);
+  form.value[selectedEmployee.value.value].activities.splice(index, 1);
 };
 const addItem = () => {
-  optionCounter.value = optionCounter.value + 1;
-  form.value.activities.push({
+  optionCounter.value[selectedEmployee.value.value] = optionCounter.value[selectedEmployee.value.value] + 1;
+  form.value[selectedEmployee.value.value].activities.push({
     qty: null,
     brand: "Pilih Brand",
     task: "Pilih Tugas",
@@ -94,11 +107,10 @@ const handleSubmit = async () => {
   const response = await $api("/activities", {
     method: "POST",
     body: {
-      employee_id: form.value.employee,
-      activities: form.value.activities,
+      employee_id: form.value[selectedEmployee.value.value].employee,
+      activities: form.value[selectedEmployee.value.value].activities,
     },
   });
-  console.log(await response);
   localStorage.removeItem("unsavedFormData");
   router.replace("/apps/activities/list");
 };
@@ -109,93 +121,71 @@ watch(
   },
   { deep: true }
 );
-const storedFormData = localStorage.getItem("unsavedFormData");
-if (storedFormData) {
-  form.value = JSON.parse(storedFormData);
-  optionCounter.value = JSON.parse(storedFormData).activities.length;
+
+
+const currentTab = ref('window1')
+const selectedEmployee = ref({
+  title: '',
+  value: 1
+})
+
+const handleTabClick = (employee: any) => {
+  selectedEmployee.value = employee;
+  console.log(employee);
+
 }
 </script>
-<template>
-  <div>
-    <div class="d-flex flex-wrap justify-space-between gap-y-4 gap-x-6 mb-6">
-      <div class="d-flex flex-column justify-center">
-        <h4 class="text-h4 font-weight-medium">Input Aktifitas</h4>
-      </div>
 
-      <div class="d-flex gap-4 align-center flex-wrap">
-        <VBtn color="primary" @click="handleSubmit"> Simpan </VBtn>
-      </div>
-    </div>
-    <VRow>
-      <VCol cols="12">
-        <VCard title="Karyawan">
-          <VCardText>
-            <div class="d-flex flex-column gap-y-4">
-              <AppSelect
-                v-model="form.employee"
-                :items="masterEmployeeData"
-                label="Karyawan"
-                placeholder="Select Item"
-              />
-            </div>
-          </VCardText>
-        </VCard>
-      </VCol>
-      <VCol cols="12">
+<template>
+  <VTabs v-model="currentTab" class="v-tabs-pill">
+    <VTab @click="handleTabClick(employee)" v-for="(employee, index) in masterEmployeeData" :key="employee.value">
+      {{ index + 1 }}. {{ employee.title }}
+    </VTab>
+  </VTabs>
+
+  <div v-if="form[selectedEmployee.value]" class="mt-5">
+    <VWindow v-model="currentTab">
+      <VWindowItem v-for="item in 3" :key="`window${item}`">
         <VCard title="Aktifitas">
           <VCardText>
-            <template v-for="i in optionCounter" :key="i">
+            <template v-for="i in optionCounter[selectedEmployee.value]" :key="i">
               <div class="border rounded pa-3 mb-3">
                 <VRow class="position-relative">
                   <VCol cols="12" md="3">
-                    <AppSelect
-                      v-model="form.activities[i - 1].brand"
-                      :items="masterBrandData"
-                      label="Brand"
-                      placeholder="Select Item"
-                    />
+                    <AppSelect v-model="form[selectedEmployee.value].activities[i - 1].brand" :items="masterBrandData"
+                      label="Brand" placeholder="Select Item" />
                   </VCol>
                   <VCol cols="12" md="3">
-                    <AppSelect
-                      v-model="form.activities[i - 1].task"
-                      :items="masterTaskData"
-                      label="Tugas"
-                      placeholder="Select Item"
-                    />
+                    <AppSelect v-model="form[selectedEmployee.value].activities[i - 1].task" :items="masterTaskData"
+                      label="Tugas" placeholder="Select Item" />
                   </VCol>
                   <VCol cols="12" md="3">
-                    <AppSelect
-                      v-model="form.activities[i - 1].product"
-                      :items="masterProdukData"
-                      label="Produk"
-                      placeholder="Select Item"
-                    />
+                    <AppSelect v-model="form[selectedEmployee.value].activities[i - 1].product"
+                      :items="masterProdukData" label="Produk" placeholder="Select Item" />
                   </VCol>
                   <VCol cols="12" md="3">
-                    <AppTextField
-                      v-model="form.activities[i - 1].qty"
-                      label="Jumlah (Pcs)"
-                      placeholder="0"
-                    />
+                    <AppTextField v-model="form[selectedEmployee.value].activities[i - 1].qty" label="Jumlah (Pcs)"
+                      placeholder="0" />
                   </VCol>
-                  <VBtn
-                    icon="tabler-trash"
-                    color="error"
-                    v-if="optionCounter > 1"
-                    @click="removeItem(i)"
-                    class="position-absolute"
-                    style="top: -20px; right: -20px"
-                  />
+                  <VBtn icon="tabler-trash" color="error" v-if="optionCounter[selectedEmployee.value] > 1"
+                    @click="removeItem(i)" class="position-absolute" style="top: -20px; right: -20px" />
                 </VRow>
               </div>
             </template>
 
-            <VBtn class="mt-6" prepend-icon="tabler-plus" @click="addItem">
-              Tambah
-            </VBtn>
+            <div class="d-flex justify-end">
+              <VBtn class="mt-6" prepend-icon="tabler-plus" @click="addItem">
+                Tambah
+              </VBtn>
+            </div>
           </VCardText>
         </VCard>
-      </VCol>
-    </VRow>
+      </VWindowItem>
+    </VWindow>
+    <div class="w-full d-flex justify-end">
+      <VBtn class="mt-6" prepend-icon="tabler-check" color="success" @click="handleSubmit">
+        Simpan Semua
+      </VBtn>
+    </div>
   </div>
 </template>
