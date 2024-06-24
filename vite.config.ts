@@ -77,6 +77,14 @@ export default defineConfig({
     }),
     svgLoader(),
   ],
+  server: {
+    https: {
+      key: '/etc/letsencrypt/live/minja.natestudio.my.id/privkey.pem',
+      cert: '/etc/letsencrypt/live/minja.natestudio.my.id/fullchain.pem',
+    },
+    host: 'localhost',
+    port: 5173,
+  },
   define: { 'process.env': {} },
   resolve: {
     alias: {
