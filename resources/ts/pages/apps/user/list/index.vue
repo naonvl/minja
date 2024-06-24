@@ -78,15 +78,17 @@ const handleSubmit = async () => {
     if (response.data) {
       fetchEmployees();
       isDialogVisible.value = false;
+      form.value.fullname = "";
+      form.value.department = "";
+      form.value.email = "";
+      form.value.password = "";
+      form.value.confirmPassword = "";
+      form.value.username = "";
     } else {
       console.error(response.error);
     }
   } catch (error) {
     console.error(error);
-  } finally {
-    // form.value.name = "";
-    // form.value.tipeData = "";
-    // isDialogVisible.value = false;
   }
 };
 const isMobile =

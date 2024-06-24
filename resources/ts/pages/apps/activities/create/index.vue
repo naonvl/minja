@@ -105,14 +105,18 @@ const addItem = () => {
 };
 const handleSubmit = async () => {
   await Promise.all(form.value.map(async (form: any) => {
-    const response = await $api("/activities", {
-      method: "POST",
-      body: {
-        employee_id: form.employee,
-        activities: form.activities,
-      },
-    });
-    console.log(response);
+    if (form.activities[0].task && form.activities[0].task !== 'Pilih Tugas' && form.activities[0].task !== 'null') {
+      const response = await $api("/activities", {
+        method: "POST",
+        body: {
+          employee_id: form.employee,
+          activities: form.activities,
+        },
+      });
+      console.log(response);
+    } else {
+      console.log("Task is required");
+    }
   }));
   localStorage.removeItem("unsavedFormData");
   router.replace("/apps/activities/list");
