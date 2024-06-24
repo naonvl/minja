@@ -27,12 +27,19 @@ class EmployeeController extends Controller
         $length = $request->input('length');
 
         $employees = Employee::where('status', 1)
-            ->with('department')
+            ->whereHas('user', function ($query) {
+                $query->where('user_type', '!=', 0);
+            })
+            ->with(['department','user'])
             ->offset($start)
             ->limit($length)
             ->get();
 
-        $recordsTotal = Employee::where('status', 1)->count();
+        $recordsTotal = Employee::where('status', 1)
+            ->whereHas('user', function ($query) {
+                $query->where('user_type', '!=', 0);
+            })
+            ->count();
 
         $data = [];
         foreach ($employees as $employee) {

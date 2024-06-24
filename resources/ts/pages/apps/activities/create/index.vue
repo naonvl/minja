@@ -105,7 +105,7 @@ const addItem = () => {
 };
 const handleSubmit = async () => {
   await Promise.all(form.value.map(async (form: any) => {
-    if (form.activities[0].task && form.activities[0].task !== 'Pilih Tugas' && form.activities[0].task !== 'null') {
+    if (form.activities[0].task && form.activities[0].task !== 'Pilih Tugas' && form.activities[0].task !== 'null' && form.activities[0].qty > 0) {
       const response = await $api("/activities", {
         method: "POST",
         body: {
@@ -146,14 +146,15 @@ const handleTabClick = (employee: any) => {
 <template>
   <VTabs v-model="currentTab" class="v-tabs-pill">
     <VTab @click="handleTabClick(employee)" v-for="(employee, index) in masterEmployeeData" :key="employee.value">
-      {{ index + 1 }}. {{ employee.title }}
+      {{ index + 1 }}. {{ employee.title }} <span v-if="form[employee.value].activities[0].qty > 0"
+        style="font-weight: bold;margin-left: 5px;"> [{{ form[employee.value].activities.length }}]</span>
     </VTab>
   </VTabs>
 
   <div v-if="form[selectedEmployee.value]" class="mt-5">
     <VWindow v-model="currentTab">
-      <VWindowItem v-for="item in 3" :key="`window${item}`">
-        <VCard title="Aktifitas">
+      <VWindowItem v-for="item in optionCounter.length" :key="`window${item}`">
+        <VCard :title="'Aktifitas ' + selectedEmployee.title">
           <VCardText>
             <template v-for="i in optionCounter[selectedEmployee.value]" :key="i">
               <div class="border rounded pa-3 mb-3">
